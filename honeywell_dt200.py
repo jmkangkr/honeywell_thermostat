@@ -72,11 +72,11 @@ HANS_ROOM       = 'HANS_ROOM'
 _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT = [LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM]
 
 
-def _rotate_rotary_encoder(count):
+def rotate_rotary_encoder(count):
     if count > 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.2, count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.05, count)
     elif count < 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.2, -count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.05, -count)
 
 
 def _round_to_0dot5(number):
@@ -89,7 +89,7 @@ def change_states(old_states, new_states):
             new_temp = _round_to_0dot5(new_states[room])
             old_temp = _round_to_0dot5(old_states[room])
             count = int((new_temp - old_temp) * 2)
-            _rotate_rotary_encoder(count)
+            rotate_rotary_encoder(count)
             time.sleep(1.0)
         except KeyError:
             pass
@@ -100,6 +100,6 @@ def change_states(old_states, new_states):
 if __name__ == '__main__':
     gpio_init()
     input("Increase 4 count")
-    _rotate_rotary_encoder(4)
+    rotate_rotary_encoder(4)
     input("Decrease 4 count")
-    _rotate_rotary_encoder(-4)
+    rotate_rotary_encoder(-4)
