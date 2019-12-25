@@ -40,6 +40,7 @@ def apply():
             old_honeywell_dt200_states[room] = 24.5 if state else 10.0
             new_honeywell_dt200_states[room] = 24.5 if new_state else 10.0
 
+    print("change_states: {} -> {}".format(old_honeywell_dt200_states, new_honeywell_dt200_states))
     change_states(old_honeywell_dt200_states, new_honeywell_dt200_states)
 
     states = new_states

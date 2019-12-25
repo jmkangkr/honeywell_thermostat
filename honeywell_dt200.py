@@ -89,7 +89,6 @@ def change_states(old_states, new_states):
             new_temp = _round_to_0dot5(new_states[room])
             old_temp = _round_to_0dot5(old_states[room])
             count = int((new_temp - old_temp) * 2)
-            print("{} -> {}: {}".format(new_temp, old_temp, count))
             _rotate_rotary_encoder(count)
             time.sleep(1.0)
         except KeyError:
