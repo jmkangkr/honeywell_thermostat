@@ -54,7 +54,7 @@ def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
     GPIO.output(pin_b, False)
 
 
-def init():
+def gpio_init():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(_BUTTON_HEATING_LEAVING_OFF, GPIO.OUT)
     GPIO.setup(_BUTTON_MODE, GPIO.OUT)
