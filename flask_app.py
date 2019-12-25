@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
 from collections import OrderedDict
+from honeywell_dt200 import change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
 
 
 app = Flask(__name__)
 states = OrderedDict(
-    [("livingroom",     True),
-     ("bedroom",        True),
-     ("computerroom",   False),
-     ("hansroom",       False)]
+    [(LIVING_ROOM,      False),
+     (BED_ROOM,         False),
+     (COMPUTER_ROOM,    False),
+     (HANS_ROOM,        False)]
 )
 
 
@@ -32,11 +33,14 @@ def apply():
         else:
             new_states[room] = False
 
+    old_honeywell_dt200_states = {}
+    new_honeywell_dt200_states = {}
     for (room, state), (_, new_state) in zip(states.items(), new_states.items()):
-        if state == new_state:
-            print("{}: stay {}".format(room, state))
-        else:
-            print("{}: {} -> {}".format(room, state, new_state))
+        if state != new_state:
+            old_honeywell_dt200_states[room] = 24.5 if state else 10.0
+            new_honeywell_dt200_states[room] = 24.5 if new_state else 10.0
+
+    change_states(old_honeywell_dt200_states, new_honeywell_dt200_states)
 
     states = new_states
 
