@@ -4,10 +4,10 @@ from collections import OrderedDict
 
 app = Flask(__name__)
 states = OrderedDict(
-    [('living room',     True),
-     ('bedroom',         True),
-     ('computer room',   False),
-     ('kid room',        False)]
+    [("livingroom",     True),
+     ("bedroom",        True),
+     ("computerroom",   False),
+     ("hansroom",       False)]
 )
 
 

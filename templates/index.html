@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Thermostat</title>
+    <link rel="stylesheet" href='../static/style.css'/>
+</head>
+<body>
+<h2>Thermostat</h2>
+<form action="/apply" method="post">
+    <div>
+        <span>Living Room</span>
+        <label class="switch">
+            <input type="checkbox" name="livingroom" {{'checked="checked"' if livingroom else ""}}/>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <div>
+        <span>Bedroom</span>
+        <label class="switch">
+            <input type="checkbox" name="bedroom" {{'checked="checked"' if bedroom else ""}}/>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <div>
+        <span>Computer Room</span>
+        <label class="switch">
+            <input type="checkbox" name="computerroom" {{'checked="checked"' if computerroom else ""}}/>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <div>
+        <span>Han's Room</span>
+        <label class="switch">
+            <input type="checkbox" name="hansroom" {{'checked="checked"' if hansroom else ""}}/>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <div>
+        <input class="button" type="submit" value="Apply"/>
+        <input class="button" type="reset" value="Reset"/>
+    </div>
+</form>
+</body>
+</html>
