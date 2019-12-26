@@ -51,7 +51,10 @@ def apply():
         print("Apply: {}".format(request.form))
         new_states = {}
         for room, temperature in request.form.items():
-            new_states[room] = float(temperature)
+            if room.endswith("AUTO_TURNOFF"):
+                pass
+            else:
+                new_states[room] = float(temperature)
 
         change_states(states, new_states)
 
