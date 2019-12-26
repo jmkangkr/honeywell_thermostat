@@ -7,95 +7,64 @@
 </head>
 <body>
 <h2>Thermostat</h2>
-<form action="/apply" method="post">
-    <div>
-        <span>Living Room</span>
-        <label class="switch">
-            <input type="checkbox" name="LIVING_ROOM" {{'checked="checked"' if LIVING_ROOM else ""}}/>
-            <span class="slider round"></span>
-        </label>
-    </div>
-
-    <div>
-        <span>Bedroom</span>
-        <label class="switch">
-            <input type="checkbox" name="BED_ROOM" {{'checked="checked"' if BED_ROOM else ""}}/>
-            <span class="slider round"></span>
-        </label>
-    </div>
-
-    <div>
-        <span>Computer Room</span>
-        <label class="switch">
-            <input type="checkbox" name="COMPUTER_ROOM" {{'checked="checked"' if COMPUTER_ROOM else ""}}/>
-            <span class="slider round"></span>
-        </label>
-    </div>
-
-    <div>
-        <span>Han's Room</span>
-        <label class="switch">
-            <input type="checkbox" name="HANS_ROOM" {{'checked="checked"' if HANS_ROOM else ""}}/>
-            <span class="slider round"></span>
-        </label>
-    </div>
-
-    <div>
-        <input class="button" type="submit" value="Apply"/>
-        <input class="button" type="reset" value="Reset"/>
-    </div>
-
-    <div id="room_temperatures">
-        <script>
-            function roundHalf(num) {
-                return Math.round(num*2)/2;
-            }
-
-            function createOptionWithValues(selectElementId, defaultOption) {
-                let temperatures = ['unknown', 26.5, 26, 25.5, 25, 24.5, 24, 23.5, 23, 22.5, 22, 21.5, 21, 20.5, 20, '---', 10];
-                let selectElement = document.getElementById(selectElementId + "_SELECTOR");
-                temperatures.forEach(value => {
-                    let optionElement = document.createElement("OPTION");
-                    optionElement.text = value;
-                    optionElement.value = value;
-                    optionElement.selected = value === defaultOption ? "selected" : "";
-                    selectElement.options.add(optionElement);
-                });
-            }
-        </script>
+    <form action="/apply" method="post">
         <div>
-            <label for="LIVING_ROOM_SELECTOR">Living Room</label>
-            <select id="LIVING_ROOM_SELECTOR">
-                <script>
-                    createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
-                </script>
-            </select>
+            <script>
+                function roundHalf(num) {
+                    return Math.round(num*2)/2;
+                }
+
+                function createOptionWithValues(selectElementId, defaultOption) {
+                    let temperatures = ['unknown', 26.5, 26, 25.5, 25, 24.5, 24, 23.5, 23, 22.5, 22, 21.5, 21, 20.5, 20, '---', 10];
+                    let selectElement = document.getElementById(selectElementId + "_SELECTOR");
+                    temperatures.forEach(value => {
+                        let optionElement = document.createElement("OPTION");
+                        optionElement.text = value;
+                        optionElement.value = value;
+                        optionElement.selected = value === defaultOption ? "selected" : "";
+                        selectElement.options.add(optionElement);
+                    });
+                }
+            </script>
+            <div>
+                <label for="LIVING_ROOM_SELECTOR">Living Room</label>
+                <select id="LIVING_ROOM_SELECTOR">
+                    <script>
+                        createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div>
+                <label for="BED_ROOM_SELECTOR">Bedroom</label>
+                <select id="BED_ROOM_SELECTOR">
+                    <script>
+                        createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div>
+                <label for="COMPUTER_ROOM_SELECTOR">Lab13485</label>
+                <select id="COMPUTER_ROOM_SELECTOR">
+                    <script>
+                        createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div>
+                <label for="HANS_ROOM_SELECTOR">Han's Room</label>
+                <select id="HANS_ROOM_SELECTOR">
+                    <script>
+                        createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
+                    </script>
+                </select>
+            </div>
         </div>
+
         <div>
-            <label for="BED_ROOM_SELECTOR">Bedroom</label>
-            <select id="BED_ROOM_SELECTOR">
-                <script>
-                    createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
-                </script>
-            </select>
+            <input class="button" type="submit" value="Apply"/>
+            <input class="button" type="reset" value="Reset"/>
         </div>
-        <div>
-            <label for="COMPUTER_ROOM_SELECTOR">Lab13485</label>
-            <select id="COMPUTER_ROOM_SELECTOR">
-                <script>
-                    createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
-                </script>
-            </select>
-        </div>
-        <div>
-            <label for="HANS_ROOM_SELECTOR">Han's Room</label>
-            <select id="HANS_ROOM_SELECTOR">
-                <script>
-                    createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
-                </script>
-            </select>
-        </div>
-    </div>
-</form>
+
+    </form>
 </body>
 </html>

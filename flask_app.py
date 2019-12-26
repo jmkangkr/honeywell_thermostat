@@ -42,6 +42,8 @@ def index():
 def apply():
     global states
 
+    print(request.form)
+
     rooms_on = set()
     for room, on in request.form.items():
         rooms_on.add(room)
@@ -83,4 +85,5 @@ def turn_off_room(room):
 
 if __name__ == '__main__':
     gpio_init()
+    print("============ " + str(datetime.datetime.now()))
     app.run(debug=True, host='0.0.0.0')
