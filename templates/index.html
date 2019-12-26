@@ -21,7 +21,7 @@
                         let optionElement = document.createElement("OPTION");
                         optionElement.text = value;
                         optionElement.value = value;
-                        optionElement.name = "optionNameHere";
+                        optionElement.disabled = value === '---' ? "disabled" : "";
                         optionElement.selected = value === defaultOption ? "selected" : "";
                         selectElement.options.add(optionElement);
                     });
@@ -29,7 +29,7 @@
             </script>
             <div>
                 <label for="LIVING_ROOM_SELECTOR">Living Room</label>
-                <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM_NAME">
+                <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM">
                     <script>
                         createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
                     </script>
