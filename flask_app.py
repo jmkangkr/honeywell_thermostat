@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from collections import OrderedDict
 from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
 import threading
+import datetime
 
 
 app = Flask(__name__)
