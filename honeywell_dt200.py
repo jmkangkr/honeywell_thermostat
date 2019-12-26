@@ -79,15 +79,15 @@ def rotate_rotary_encoder(count):
         _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.05, -count)
 
 
-def _round_to_0dot5(number):
+def _round_to_half(number):
     return round(number * 2) / 2
 
 
 def change_states(old_states, new_states):
     for room in _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT:
         try:
-            new_temp = _round_to_0dot5(new_states[room])
-            old_temp = _round_to_0dot5(old_states[room])
+            new_temp = _round_to_half(new_states[room])
+            old_temp = _round_to_half(old_states[room])
             count = int((new_temp - old_temp) * 2)
             rotate_rotary_encoder(count)
             time.sleep(1.0)
