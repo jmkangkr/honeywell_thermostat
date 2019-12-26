@@ -105,7 +105,5 @@ def change_states(old_states, new_states):
 
 if __name__ == '__main__':
     gpio_init()
-    input("Increase 4 count")
-    rotate_rotary_encoder(4)
-    input("Decrease 4 count")
-    rotate_rotary_encoder(-4)
+    count = input("Input count to increase/decrease: ")
+    rotate_rotary_encoder(int(count))
