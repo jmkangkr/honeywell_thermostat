@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
 import threading
 import datetime
+import sys
 
 
 app = Flask(__name__)
@@ -85,6 +86,11 @@ def callback_turn_off_room(room):
 
 
 if __name__ == '__main__':
+    states[LIVING_ROOM]     = float(sys.argv[1])
+    states[BED_ROOM]        = float(sys.argv[2])
+    states[COMPUTER_ROOM]   = float(sys.argv[3])
+    states[HANS_ROOM]       = float(sys.argv[4])
+
     gpio_init()
     print("============ " + str(datetime.datetime.now()))
     app.run(debug=True, host='0.0.0.0')
