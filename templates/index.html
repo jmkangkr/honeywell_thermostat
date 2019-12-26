@@ -44,6 +44,55 @@
         <input class="button" type="submit" value="Apply"/>
         <input class="button" type="reset" value="Reset"/>
     </div>
+
+    <div id="room_temperatures">
+        <script>
+            function createOptionWithValues(selectElementId) {
+                console.log(LIVING_ROOM);
+                let temperatures = [26.5, 26, 25.5, 25, 24.5, 24, 23.5, 23, 22.5, 22, 21.5, 21, 20.5, 20, '---', 10];
+                let selectElement = document.getElementById(selectElementId + "_SELECTOR");
+                temperatures.forEach(value => {
+                    let optionElement = document.createElement("OPTION");
+                    optionElement.text = value;
+                    optionElement.value = value;
+                    optionElement.selected = value === '---' ? "selected" : "";
+                    selectElement.options.add(optionElement);
+                });
+            }
+        </script>
+        <div>
+            <label for="LIVING_ROOM_SELECTOR">Living Room</label>
+            <select id="LIVING_ROOM_SELECTOR">
+                <script>
+                    createOptionWithValues("LIVING_ROOM");
+                </script>
+            </select>
+        </div>
+        <div>
+            <label for="BED_ROOM_SELECTOR">Bedroom</label>
+            <select id="BED_ROOM_SELECTOR">
+                <script>
+                    createOptionWithValues("BED_ROOM");
+                </script>
+            </select>
+        </div>
+        <div>
+            <label for="COMPUTER_ROOM_SELECTOR">Lab13485</label>
+            <select id="COMPUTER_ROOM_SELECTOR">
+                <script>
+                    createOptionWithValues("COMPUTER_ROOM");
+                </script>
+            </select>
+        </div>
+        <div>
+            <label for="HANS_ROOM_SELECTOR">Han's Room</label>
+            <select id="HANS_ROOM_SELECTOR">
+                <script>
+                    createOptionWithValues("HANS_ROOM");
+                </script>
+            </select>
+        </div>
+    </div>
 </form>
 </body>
 </html>

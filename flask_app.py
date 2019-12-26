@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from collections import OrderedDict
 from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
+import threading
 
 
 app = Flask(__name__)
@@ -10,6 +11,25 @@ states = OrderedDict(
      (COMPUTER_ROOM,    False),
      (HANS_ROOM,        False)]
 )
+
+
+def send_change_states_to_honeywell_dt200(old_states, new_states):
+    newly_turned_on_rooms = []
+    newly_turned_off_rooms = []
+    old_honeywell_dt200_states = {}
+    new_honeywell_dt200_states = {}
+    for (room, old_state), (_, new_state) in zip(old_states.items(), new_states.items()):
+        if old_state != new_state:
+            old_honeywell_dt200_states[room] = 24.5 if old_state else 10.0
+            new_honeywell_dt200_states[room] = 24.5 if new_state else 10.0
+            if new_state:
+                newly_turned_on_rooms.append(room)
+            else:
+                newly_turned_off_rooms.append(room)
+
+    change_states(old_honeywell_dt200_states, new_honeywell_dt200_states)
+
+    return newly_turned_on_rooms, newly_turned_off_rooms
 
 
 @app.route('/')
@@ -33,19 +53,32 @@ def apply():
         else:
             new_states[room] = False
 
-    old_honeywell_dt200_states = {}
-    new_honeywell_dt200_states = {}
-    for (room, state), (_, new_state) in zip(states.items(), new_states.items()):
-        if state != new_state:
-            old_honeywell_dt200_states[room] = 24.5 if state else 10.0
-            new_honeywell_dt200_states[room] = 24.5 if new_state else 10.0
-
-    print("change_states: {} -> {}".format(old_honeywell_dt200_states, new_honeywell_dt200_states))
-    change_states(old_honeywell_dt200_states, new_honeywell_dt200_states)
+    newly_turned_on_rooms, newly_turned_off_rooms = send_change_states_to_honeywell_dt200(states, new_states)
 
     states = new_states
 
+    for newly_turned_off_room in newly_turned_off_rooms:
+        # Should remove timer for the room
+        # t.cancel()
+        pass
+
+    for newly_turned_on_room in newly_turned_on_rooms:
+        # Should set timer for the room to turn off
+        # t = threading.Timer(60 * 5, turn_off_room, [newly_turned_on_room]).start()
+        pass
+
     return redirect(url_for('index'))
+
+
+def turn_off_room(room):
+    # Should be mutex protected
+    # Call lock = threading.Lock() at init
+    # with lock:
+    global states
+
+    send_change_states_to_honeywell_dt200({room: True}, {room: False})
+
+    states[room] = False
 
 
 if __name__ == '__main__':
