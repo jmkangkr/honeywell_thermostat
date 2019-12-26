@@ -21,6 +21,7 @@
                         let optionElement = document.createElement("OPTION");
                         optionElement.text = value;
                         optionElement.value = value;
+                        optionElement.name = "optionNameHere";
                         optionElement.selected = value === defaultOption ? "selected" : "";
                         selectElement.options.add(optionElement);
                     });
@@ -28,7 +29,7 @@
             </script>
             <div>
                 <label for="LIVING_ROOM_SELECTOR">Living Room</label>
-                <select id="LIVING_ROOM_SELECTOR">
+                <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM_NAME">
                     <script>
                         createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
                     </script>
@@ -36,7 +37,7 @@
             </div>
             <div>
                 <label for="BED_ROOM_SELECTOR">Bedroom</label>
-                <select id="BED_ROOM_SELECTOR">
+                <select id="BED_ROOM_SELECTOR" name="BED_ROOM">
                     <script>
                         createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
                     </script>
@@ -44,7 +45,7 @@
             </div>
             <div>
                 <label for="COMPUTER_ROOM_SELECTOR">Lab13485</label>
-                <select id="COMPUTER_ROOM_SELECTOR">
+                <select id="COMPUTER_ROOM_SELECTOR" name="COMPUTER_ROOM">
                     <script>
                         createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
                     </script>
@@ -52,7 +53,7 @@
             </div>
             <div>
                 <label for="HANS_ROOM_SELECTOR">Han's Room</label>
-                <select id="HANS_ROOM_SELECTOR">
+                <select id="HANS_ROOM_SELECTOR" name="HANS_ROOM">
                     <script>
                         createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
                     </script>
