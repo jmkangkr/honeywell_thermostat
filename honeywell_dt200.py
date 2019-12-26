@@ -91,7 +91,7 @@ def change_states(old_states, new_states):
             new_temp = _round_to_half(new_states[room])
             old_temp = _round_to_half(old_states[room])
             count = int((new_temp - old_temp) * 2)
-            print("rotate {} count".format(count))
+            print("rotate {} count (temp {})".format(count, float(count) / 2))
             if count != 0:
                 rotate_rotary_encoder(count)
                 time.sleep(5.0)
