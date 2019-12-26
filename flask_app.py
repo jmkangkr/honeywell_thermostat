@@ -28,8 +28,8 @@ lock = threading.Lock()
 
 def calc_changed_room(old_states, new_states):
     rooms_changed = set()
-    for room, old_state in old_states:
-        if old_state != new_states[room]:
+    for room in old_states:
+        if old_states[room] != new_states[room]:
             rooms_changed.add(room)
 
     return rooms_changed
