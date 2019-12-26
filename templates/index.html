@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.5">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
     <title>Online Thermostat</title>
     <link rel="stylesheet" href='../static/style.css'/>
 </head>
@@ -28,7 +28,7 @@
                 }
             </script>
             <div class="temperature">
-                <label for="LIVING_ROOM_SELECTOR">Living Room</label>
+                <label for="LIVING_ROOM_SELECTOR"><h4>Living Room</h4></label>
                 <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM">
                     <script>
                         createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
@@ -36,7 +36,7 @@
                 </select>
             </div>
             <div class="temperature">
-                <label for="BED_ROOM_SELECTOR">Bedroom</label>
+                <label for="BED_ROOM_SELECTOR"><h4>Bedroom</h4></label>
                 <select id="BED_ROOM_SELECTOR" name="BED_ROOM">
                     <script>
                         createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
@@ -44,7 +44,7 @@
                 </select>
             </div>
             <div class="temperature">
-                <label for="COMPUTER_ROOM_SELECTOR">Lab13485</label>
+                <label for="COMPUTER_ROOM_SELECTOR"><h4>Lab13485</h4></label>
                 <select id="COMPUTER_ROOM_SELECTOR" name="COMPUTER_ROOM">
                     <script>
                         createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
@@ -52,7 +52,7 @@
                 </select>
             </div>
             <div class="temperature">
-                <label for="HANS_ROOM_SELECTOR">Han's Room</label>
+                <label for="HANS_ROOM_SELECTOR"><h4>Han's Room</h4></label>
                 <select id="HANS_ROOM_SELECTOR" name="HANS_ROOM">
                     <script>
                         createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
