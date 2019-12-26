@@ -1,36 +1,38 @@
 from flask import Flask, render_template, request, redirect, url_for
-from collections import OrderedDict
 from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
 import threading
 import datetime
 
 
 app = Flask(__name__)
-states = OrderedDict(
-    [(LIVING_ROOM,      10.0),
-     (BED_ROOM,         10.0),
-     (COMPUTER_ROOM,    10.0),
-     (HANS_ROOM,        10.0)]
-)
 
 
-def send_change_states_to_honeywell_dt200(old_states, new_states):
-    newly_turned_on_rooms = []
-    newly_turned_off_rooms = []
-    old_honeywell_dt200_states = {}
-    new_honeywell_dt200_states = {}
-    for (room, old_state), (_, new_state) in zip(old_states.items(), new_states.items()):
-        if old_state != new_state:
-            old_honeywell_dt200_states[room] = 24.5 if old_state else 10.0
-            new_honeywell_dt200_states[room] = 24.5 if new_state else 10.0
-            if new_state:
-                newly_turned_on_rooms.append(room)
-            else:
-                newly_turned_off_rooms.append(room)
+states = {
+    LIVING_ROOM:    10.0,
+    BED_ROOM:       10.0,
+    COMPUTER_ROOM:  10.0,
+    HANS_ROOM:      10.0
+}
 
-    change_states(old_honeywell_dt200_states, new_honeywell_dt200_states)
 
-    return newly_turned_on_rooms, newly_turned_off_rooms
+timers_to_turn_off = {
+    LIVING_ROOM:    None,
+    BED_ROOM:       None,
+    COMPUTER_ROOM:  None,
+    HANS_ROOM:      None
+}
+
+
+lock = threading.Lock()
+
+
+def calc_changed_room(old_states, new_states):
+    rooms_changed = set()
+    for room, old_state in old_states:
+        if old_state != new_states[room]:
+            rooms_changed.add(room)
+
+    return rooms_changed
 
 
 @app.route('/')
@@ -42,46 +44,44 @@ def index():
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
     global states
+    global lock
 
-    print(request.form)
+    with lock:
+        new_states = {}
+        for room, temperature in request.form.items():
+            new_states[room] = float(temperature)
 
-    rooms_on = set()
-    for room, on in request.form.items():
-        rooms_on.add(room)
+        change_states(states, new_states)
 
-    new_states = OrderedDict()
-    for room in states:
-        if room in rooms_on:
-            new_states[room] = True
-        else:
-            new_states[room] = False
+        rooms_changed = calc_changed_room(states, new_states)
 
-    newly_turned_on_rooms, newly_turned_off_rooms = send_change_states_to_honeywell_dt200(states, new_states)
+        for room in rooms_changed:
+            if timers_to_turn_off[room]:
+                timers_to_turn_off[room].cancel()
+                timers_to_turn_off[room] = None
 
-    states = new_states
+            if new_states[room] != 10.0:
+                timers_to_turn_off[room] = threading.Timer(60 * 5, callback_turn_off_room, [room]).start()
+                pass
 
-    for newly_turned_off_room in newly_turned_off_rooms:
-        # Should remove timer for the room
-        # t.cancel()
-        pass
+        states = new_states
 
-    for newly_turned_on_room in newly_turned_on_rooms:
-        # Should set timer for the room to turn off
-        # t = threading.Timer(60 * 5, turn_off_room, [newly_turned_on_room]).start()
-        pass
-
-    return redirect(url_for('index'))
+        return redirect(url_for('index'))
 
 
-def turn_off_room(room):
-    # Should be mutex protected
-    # Call lock = threading.Lock() at init
-    # with lock:
+def callback_turn_off_room(room):
     global states
 
-    send_change_states_to_honeywell_dt200({room: True}, {room: False})
+    with lock:
+        new_states = states.copy()
+        new_states[room] = 10.0
 
-    states[room] = False
+        print("Turning off {}".format(room))
+        change_states(states, new_states)
+
+        states = new_states
+
+        timers_to_turn_off[room] = None
 
 
 if __name__ == '__main__':
