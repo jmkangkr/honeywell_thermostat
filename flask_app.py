@@ -6,10 +6,10 @@ import threading
 
 app = Flask(__name__)
 states = OrderedDict(
-    [(LIVING_ROOM,      False),
-     (BED_ROOM,         False),
-     (COMPUTER_ROOM,    False),
-     (HANS_ROOM,        False)]
+    [(LIVING_ROOM,      10.0),
+     (BED_ROOM,         10.0),
+     (COMPUTER_ROOM,    10.0),
+     (HANS_ROOM,        10.0)]
 )
 
 
