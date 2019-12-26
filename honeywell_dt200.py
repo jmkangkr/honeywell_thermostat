@@ -29,7 +29,7 @@ def _press_button_long(pin):
     _press_button(pin, _LONG_PRESS_TIME)
 
 
-def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
+def _old_rotary_encoder(pin_a, pin_b, secs_per_change, count):
     pin_a_sequence = [False, True, True, False]
     pin_b_sequence = [False, False, True, True]
 
@@ -52,6 +52,20 @@ def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
 
     GPIO.output(pin_a, False)
     GPIO.output(pin_b, False)
+
+
+def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
+    GPIO.output((pin_a, pin_b), False)
+    time.sleep(0.5)
+    GPIO.output((pin_a, pin_b), True)
+
+    pin_a_sequence = [False, True, True, False]
+    pin_b_sequence = [False, False, True, True]
+
+    for n in range(count):
+        for a, b in zip(pin_a_sequence, pin_b_sequence):
+            GPIO.output((pin_a, pin_b), (a, b))
+            time.sleep(secs_per_change)
 
 
 def gpio_init():
