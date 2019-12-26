@@ -84,15 +84,20 @@ def _round_to_half(number):
 
 
 def change_states(old_states, new_states):
+    print("State changes: {} -> {}".format(old_states, new_states))
     for room in _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT:
+        print("=== {} ===".format(room))
         try:
             new_temp = _round_to_half(new_states[room])
             old_temp = _round_to_half(old_states[room])
             count = int((new_temp - old_temp) * 2)
+            print("rotate {} count".format(count))
             rotate_rotary_encoder(count)
             time.sleep(1.0)
         except KeyError:
             pass
+
+        print("move to next room")
         _press_button_short(_BUTTON_ROOM_SELECT)
         time.sleep(1.0)
 
