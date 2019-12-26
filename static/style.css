@@ -16,3 +16,7 @@ label {
     margin: 4px 2px;
     cursor: pointer;
 }
+
+.temperature {
+    margin-top: 40px;
+}
