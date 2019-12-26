@@ -48,12 +48,14 @@ def apply():
     global lock
 
     with lock:
+        print("Apply: {}".format(request.form))
         new_states = {}
         for room, temperature in request.form.items():
             new_states[room] = float(temperature)
 
         change_states(states, new_states)
 
+        '''
         rooms_changed = calc_changed_room(states, new_states)
 
         for room in rooms_changed:
@@ -64,6 +66,8 @@ def apply():
             if new_states[room] != 10.0:
                 timers_to_turn_off[room] = threading.Timer(60 * 5, callback_turn_off_room, [room]).start()
                 pass
+
+        '''
 
         states = new_states
 

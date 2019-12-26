@@ -74,9 +74,9 @@ _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT = [LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HA
 
 def rotate_rotary_encoder(count):
     if count > 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.05, count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.1, count)
     elif count < 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.05, -count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.1, -count)
 
 
 def _round_to_half(number):
@@ -92,14 +92,15 @@ def change_states(old_states, new_states):
             old_temp = _round_to_half(old_states[room])
             count = int((new_temp - old_temp) * 2)
             print("rotate {} count".format(count))
-            rotate_rotary_encoder(count)
-            time.sleep(5.0)
+            if count != 0:
+                rotate_rotary_encoder(count)
+                time.sleep(5.0)
         except KeyError:
             pass
 
         print("move to next room")
         _press_button_short(_BUTTON_ROOM_SELECT)
-        time.sleep(1.0)
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':
