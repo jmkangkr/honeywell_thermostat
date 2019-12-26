@@ -25,6 +25,14 @@
                         optionElement.selected = value === defaultOption ? "selected" : "";
                         selectElement.options.add(optionElement);
                     });
+
+                    if(!temperatures.includes(defaultOption)) {
+                        let optionElement = document.createElement("OPTION");
+                        optionElement.text = defaultOption;
+                        optionElement.value = defaultOption;
+                        optionElement.selected = "selected";
+                        selectElement.options.add(optionElement);
+                    }
                 }
             </script>
             <div class="temperature">
