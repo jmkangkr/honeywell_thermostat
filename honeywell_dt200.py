@@ -55,9 +55,6 @@ def _old_rotary_encoder(pin_a, pin_b, secs_per_change, count):
 
 
 def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
-    GPIO.output((pin_a, pin_b), False)
-    time.sleep(0.5)
-
     pin_a_sequence = [False, True, True, False]
     pin_b_sequence = [False, False, True, True]
 
@@ -78,7 +75,7 @@ def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
             time.sleep(secs_per_change)
 
     GPIO.output((pin_a, pin_b), False)
-    time.sleep(0.5)
+    time.sleep(secs_per_change)
 
 
 def gpio_init():
@@ -101,9 +98,9 @@ _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT = [LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HA
 
 def rotate_rotary_encoder(count):
     if count > 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.2, count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_A, _ROTARY_ENCODER_PIN_B, 0.025, count)
     elif count < 0:
-        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.2, -count)
+        _rotary_encoder(_ROTARY_ENCODER_PIN_B, _ROTARY_ENCODER_PIN_A, 0.025, -count)
 
 
 def _round_to_half(number):
