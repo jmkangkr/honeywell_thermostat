@@ -82,7 +82,7 @@ def apply():
         return redirect(url_for('index'))
 
 
-@app.route('/sync', methods=['POST', 'GET'])
+@app.route('/sync_apply', methods=['POST', 'GET'])
 def sync():
     global states
     global lock
@@ -98,7 +98,7 @@ def sync():
 
         states = new_states
 
-        return redirect(url_for('index'))
+        return redirect(url_for('sync'))
 
 
 def callback_turn_off_room(room):
