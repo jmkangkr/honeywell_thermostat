@@ -15,12 +15,13 @@
                 }
 
                 function createOptionWithValues(selectElementId, defaultOption) {
-                    let temperatures = Array.from(Array(100), (x, index) => (index / 2 + 0.5) - 0.5);
+                    let temperatures = Array.from(Array(101), (x, index) => (index / 2 + 0.5) - 0.5);
                     let selectElement = document.getElementById(selectElementId + "_SELECTOR");
                     temperatures.forEach(value => {
                         let optionElement = document.createElement("OPTION");
                         optionElement.text = value;
                         optionElement.value = value;
+                        optionElement.selected = value === defaultOption ? "selected" : "";
                         selectElement.options.add(optionElement);
                     });
                 }
