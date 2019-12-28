@@ -43,7 +43,7 @@ def index():
 
 
 @app.route('/sync')
-def index():
+def sync():
     return render_template('sync.html', **states)
 
 
