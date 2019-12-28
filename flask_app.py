@@ -82,13 +82,13 @@ def apply():
         return redirect(url_for('index'))
 
 
-@app.route('/sync_apply', methods=['POST', 'GET'])
-def sync():
+@app.route('/force_sync', methods=['POST', 'GET'])
+def force_sync():
     global states
     global lock
 
     with lock:
-        print("Sync: {}".format(request.form))
+        print("Force sync: {}".format(request.form))
         new_states = {}
         for room, temperature in request.form.items():
             if room.endswith("AUTO_TURNOFF"):
