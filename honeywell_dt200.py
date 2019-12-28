@@ -110,7 +110,7 @@ def change_states(old_states, new_states):
             print("rotate {} count (temp {})".format(count, float(count) / 2))
             if count != 0:
                 rotate_rotary_encoder(count)
-                time.sleep(5.0)
+                time.sleep(6.0)
         except KeyError:
             pass
 
