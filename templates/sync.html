@@ -15,24 +15,14 @@
                 }
 
                 function createOptionWithValues(selectElementId, defaultOption) {
-                    let temperatures = [26.5, 26, 25.5, 25, 24.5, 24, 23.5, 23, 22.5, 22, '---', 15];
+                    let temperatures = Array.from(Array(100), (x, index) => (index / 2 + 0.5) - 0.5);
                     let selectElement = document.getElementById(selectElementId + "_SELECTOR");
                     temperatures.forEach(value => {
                         let optionElement = document.createElement("OPTION");
                         optionElement.text = value;
                         optionElement.value = value;
-                        optionElement.disabled = value === '---' ? "disabled" : "";
-                        optionElement.selected = value === defaultOption ? "selected" : "";
                         selectElement.options.add(optionElement);
                     });
-
-                    if(!temperatures.includes(defaultOption)) {
-                        let optionElement = document.createElement("OPTION");
-                        optionElement.text = defaultOption;
-                        optionElement.value = defaultOption;
-                        optionElement.selected = "selected";
-                        selectElement.options.add(optionElement);
-                    }
                 }
             </script>
             <div class="temperature">
