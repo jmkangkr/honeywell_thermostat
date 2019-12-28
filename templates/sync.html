@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thermostat</title>
+    <link rel="stylesheet" href='../static/style.css'/>
+</head>
+<body class="sync">
+<h2>Force sync!</h2>
+    <form action="/sync" method="post">
+        <div>
+            <script>
+                function roundHalf(num) {
+                    return Math.round(num*2)/2;
+                }
+
+                function createOptionWithValues(selectElementId, defaultOption) {
+                    let temperatures = [26.5, 26, 25.5, 25, 24.5, 24, 23.5, 23, 22.5, 22, '---', 15];
+                    let selectElement = document.getElementById(selectElementId + "_SELECTOR");
+                    temperatures.forEach(value => {
+                        let optionElement = document.createElement("OPTION");
+                        optionElement.text = value;
+                        optionElement.value = value;
+                        optionElement.disabled = value === '---' ? "disabled" : "";
+                        optionElement.selected = value === defaultOption ? "selected" : "";
+                        selectElement.options.add(optionElement);
+                    });
+
+                    if(!temperatures.includes(defaultOption)) {
+                        let optionElement = document.createElement("OPTION");
+                        optionElement.text = defaultOption;
+                        optionElement.value = defaultOption;
+                        optionElement.selected = "selected";
+                        selectElement.options.add(optionElement);
+                    }
+                }
+            </script>
+            <div class="temperature">
+                <label for="LIVING_ROOM_SELECTOR">Living Room</label>
+                <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM">
+                    <script>
+                        createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div class="temperature">
+                <label for="BED_ROOM_SELECTOR">Bedroom</label>
+                <select id="BED_ROOM_SELECTOR" name="BED_ROOM">
+                    <script>
+                        createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div class="temperature">
+                <label for="COMPUTER_ROOM_SELECTOR">Lab 13485</label>
+                <select id="COMPUTER_ROOM_SELECTOR" name="COMPUTER_ROOM">
+                    <script>
+                        createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
+                    </script>
+                </select>
+            </div>
+            <div class="temperature">
+                <label for="HANS_ROOM_SELECTOR">Han's Room</label>
+                <select id="HANS_ROOM_SELECTOR" name="HANS_ROOM">
+                    <script>
+                        createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
+                    </script>
+                </select>
+                <input type="checkbox" name="HANS_ROOM_AUTO_TURNOFF"><strike>Auto turn-off</strike>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:40px;">
+            <input class="button" type="submit" value="Sync!"/>
+        </div>
+
+    </form>
+</body>
+</html>

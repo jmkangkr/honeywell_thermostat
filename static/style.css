@@ -1,3 +1,7 @@
+.sync {
+    background-color: red;
+}
+
 label {
     display: inline-block;
     width: 50%;

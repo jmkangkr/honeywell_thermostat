@@ -42,6 +42,11 @@ def index():
     return render_template('index.html', **states)
 
 
+@app.route('/sync')
+def index():
+    return render_template('sync.html', **states)
+
+
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
     global states
@@ -71,6 +76,25 @@ def apply():
                 pass
 
         '''
+
+        states = new_states
+
+        return redirect(url_for('index'))
+
+
+@app.route('/sync', methods=['POST', 'GET'])
+def sync():
+    global states
+    global lock
+
+    with lock:
+        print("Sync: {}".format(request.form))
+        new_states = {}
+        for room, temperature in request.form.items():
+            if room.endswith("AUTO_TURNOFF"):
+                pass
+            else:
+                new_states[room] = float(temperature)
 
         states = new_states
 
