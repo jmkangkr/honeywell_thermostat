@@ -3,16 +3,20 @@ from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COM
 import threading
 import datetime
 import sys
+import time
 
 
 app = Flask(__name__)
 
 
+OFF_TEMPERATURE_VALUE = 15.0
+AUTO_OFF_TIMER_IN_SECONDS = 60 * 5
+
 states = {
-    LIVING_ROOM:    10.0,
-    BED_ROOM:       10.0,
-    COMPUTER_ROOM:  10.0,
-    HANS_ROOM:      10.0
+    LIVING_ROOM:    OFF_TEMPERATURE_VALUE,
+    BED_ROOM:       OFF_TEMPERATURE_VALUE,
+    COMPUTER_ROOM:  OFF_TEMPERATURE_VALUE,
+    HANS_ROOM:      OFF_TEMPERATURE_VALUE
 }
 
 
@@ -56,14 +60,13 @@ def apply():
         print("Apply: {}".format(request.form))
         new_states = {}
         for room, temperature in request.form.items():
-            if room.endswith("AUTO_TURNOFF"):
+            if room.endswith("AUTO_OFF"):
                 pass
             else:
                 new_states[room] = float(temperature)
 
         change_states(states, new_states)
 
-        '''
         rooms_changed = calc_changed_room(states, new_states)
 
         for room in rooms_changed:
@@ -71,11 +74,8 @@ def apply():
                 timers_to_turn_off[room].cancel()
                 timers_to_turn_off[room] = None
 
-            if new_states[room] != 10.0:
-                timers_to_turn_off[room] = threading.Timer(60 * 5, callback_turn_off_room, [room]).start()
-                pass
-
-        '''
+            if new_states[room] != OFF_TEMPERATURE_VALUE:
+                timers_to_turn_off[room] = threading.Timer(AUTO_OFF_TIMER_IN_SECONDS, callback_turn_off_room, [room]).start()
 
         states = new_states
 
@@ -91,7 +91,7 @@ def force_sync():
         print("Force sync: {}".format(request.form))
         new_states = {}
         for room, temperature in request.form.items():
-            if room.endswith("AUTO_TURNOFF"):
+            if room.endswith("AUTO_OFF"):
                 pass
             else:
                 new_states[room] = float(temperature)
@@ -106,14 +106,16 @@ def callback_turn_off_room(room):
 
     with lock:
         new_states = states.copy()
-        new_states[room] = 10.0
+        new_states[room] = OFF_TEMPERATURE_VALUE
 
-        print("Turning off {}".format(room))
+        print("Auto-off: {}".format(room))
         change_states(states, new_states)
 
         states = new_states
 
         timers_to_turn_off[room] = None
+
+        time.sleep(2.0)
 
 
 if __name__ == '__main__':
