@@ -59,9 +59,11 @@ def apply():
     with lock:
         print("Apply: {}".format(request.form))
         new_states = {}
+        auto_offs = set()
         for room, temperature in request.form.items():
             if room.endswith("AUTO_OFF"):
-                pass
+                if temperature == 'on':
+                    auto_offs.add(room)
             else:
                 new_states[room] = float(temperature)
 
@@ -74,7 +76,7 @@ def apply():
                 timers_to_turn_off[room].cancel()
                 timers_to_turn_off[room] = None
 
-            if new_states[room] != OFF_TEMPERATURE_VALUE:
+            if (new_states[room] != OFF_TEMPERATURE_VALUE) and (room in auto_offs):
                 timers_to_turn_off[room] = threading.Timer(AUTO_OFF_TIMER_IN_SECONDS, callback_turn_off_room, [room]).start()
 
         states = new_states
