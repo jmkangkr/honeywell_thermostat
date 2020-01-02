@@ -47,7 +47,7 @@ def calc_changed_room(old_states, new_states):
 def index():
     temperatures_and_humidities = {}
 
-    for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://kidroom-rpi:5000"]:
+    for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000"]:
         temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
         print(temperature_and_humidity)
         temperatures_and_humidities.update(temperature_and_humidity)
