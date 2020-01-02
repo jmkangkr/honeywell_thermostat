@@ -5,6 +5,7 @@ import datetime
 import sys
 import time
 import urllib.request
+import json
 
 
 app = Flask(__name__)
@@ -20,10 +21,6 @@ states = {
     HANS_ROOM_TARGET:      OFF_TEMPERATURE_VALUE
 }
 
-
-current_temperatures = {
-    'BED_ROOM_TEMPERATURE': 30.0
-}
 
 timers_to_turn_off = {
     LIVING_ROOM_TARGET:    None,
@@ -51,7 +48,8 @@ def index():
     temperatures_and_humidities = {}
 
     for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://kidroom-rpi:5000"]:
-        temperature_and_humidity = urllib.request.urlopen(url).read()
+        temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+        print(temperature_and_humidity)
         temperatures_and_humidities.update(temperature_and_humidity)
 
     print(temperature_and_humidity)
@@ -147,4 +145,4 @@ if __name__ == '__main__':
 
     gpio_init()
     print("============ " + str(datetime.datetime.now()))
-    app.run(debug=True, host='0.0.0.0')
+    app.run(use_reloader=False, debug=True, host='0.0.0.0')
