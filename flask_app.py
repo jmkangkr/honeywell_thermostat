@@ -4,6 +4,7 @@ import threading
 import datetime
 import sys
 import time
+import urllib.request
 
 
 app = Flask(__name__)
@@ -21,7 +22,7 @@ states = {
 
 
 current_temperatures = {
-    BED_ROOM_TEMPERATURE: 30.0
+    'BED_ROOM_TEMPERATURE': 30.0
 }
 
 timers_to_turn_off = {
@@ -47,6 +48,8 @@ def calc_changed_room(old_states, new_states):
 @app.route('/')
 @app.route('/index')
 def index():
+    temperature_and_humidity = urllib.request.urlopen("http://192.168.0.25:5000").read()
+    print(temperature_and_humidity)
     return render_template('index.html', **states, **current_temperatures)
 
 
