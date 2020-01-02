@@ -107,7 +107,7 @@ def _round_to_half(number):
     return round(number * 2) / 2
 
 
-def change_states(old_states, new_states):
+def original_change_states(old_states, new_states):
     print("State changes: {} -> {}".format(old_states, new_states))
     for room in _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT:
         print("=== {} ===".format(room))
@@ -127,7 +127,45 @@ def change_states(old_states, new_states):
         time.sleep(0.5)
 
 
+def change_states(old_states, new_states):
+    print("State changes: {} -> {}".format(old_states, new_states))
+    for room in _ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT:
+        print("=== {} ===".format(room))
+        try:
+            new_temp = _round_to_half(new_states[room])
+            old_temp = _round_to_half(old_states[room])
+            if room == LIVING_ROOM:
+                if new_temp == 25.0 and old_temp == 15.0:
+                    rotate_rotary_encoder(20)
+                elif new_temp == 15.0 and old_temp == 25.0:
+                    rotate_rotary_encoder(-20)
+                else:
+                    raise AssertionError("Unkown temperature")
+                time.sleep(6.0)
+            else:
+                if new_temp == 25.0 and old_temp == 15.0:
+                    _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
+                elif new_temp == 15.0 and old_temp == 25.0:
+                    _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
+                else:
+                    raise AssertionError("Unkown temperature")
+                time.sleep(0.25)
+        except KeyError:
+            pass
+
+        print("move to next room")
+        _press_button_short(_BUTTON_ROOM_SELECT)
+        time.sleep(0.25)
+
+
 if __name__ == '__main__':
     gpio_init()
+
+    room = input("Select room\n0: living room\n1: Bedroom\n2: Lab 13485\n3: Han's room\n : ")
     count = input("Input count to increase/decrease: ")
+
+    for i in range(0, room):
+        _press_button_short(_BUTTON_ROOM_SELECT)
+        time.sleep(0.25)
+
     rotate_rotary_encoder(int(count))
