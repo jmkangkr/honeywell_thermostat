@@ -52,7 +52,7 @@ def index():
         print(temperature_and_humidity)
         temperatures_and_humidities.update(temperature_and_humidity)
 
-    print(temperature_and_humidity)
+    print(temperatures_and_humidities)
 
     return render_template('index.html', **states, **temperatures_and_humidities)
 
