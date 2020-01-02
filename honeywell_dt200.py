@@ -139,6 +139,8 @@ def change_states(old_states, new_states):
                     rotate_rotary_encoder(20)
                 elif new_temp == 15.0 and old_temp == 25.0:
                     rotate_rotary_encoder(-20)
+                elif new_temp == 25.0 and old_temp == 25.0 or new_temp == 15.0 and old_temp == 15.0:
+                    pass
                 else:
                     raise AssertionError("Unkown temperature")
                 time.sleep(6.0)
@@ -147,6 +149,8 @@ def change_states(old_states, new_states):
                     _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
                 elif new_temp == 15.0 and old_temp == 25.0:
                     _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
+                elif new_temp == 25.0 and old_temp == 25.0 or new_temp == 15.0 and old_temp == 15.0:
+                    pass
                 else:
                     raise AssertionError("Unkown temperature")
                 time.sleep(0.25)
