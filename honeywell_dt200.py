@@ -164,7 +164,7 @@ if __name__ == '__main__':
     room = input("Select room\n0: living room\n1: Bedroom\n2: Lab 13485\n3: Han's room\n : ")
     count = input("Input count to increase/decrease: ")
 
-    for i in range(0, room):
+    for i in range(0, int(room)):
         _press_button_short(_BUTTON_ROOM_SELECT)
         time.sleep(0.25)
 
