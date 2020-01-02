@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 OFF_TEMPERATURE_VALUE = 15.0
-AUTO_OFF_TIMER_IN_SECONDS = 60 * 5
+AUTO_OFF_TIMER_IN_SECONDS = 60 * 10
 
 states = {
     LIVING_ROOM:    OFF_TEMPERATURE_VALUE,
@@ -19,6 +19,10 @@ states = {
     HANS_ROOM:      OFF_TEMPERATURE_VALUE
 }
 
+
+current_temperatures = {
+    BED_ROOM_TEMPERATURE: 30.0
+}
 
 timers_to_turn_off = {
     LIVING_ROOM:    None,
@@ -43,7 +47,7 @@ def calc_changed_room(old_states, new_states):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', **states)
+    return render_template('index.html', **states, **current_temperatures)
 
 
 @app.route('/sync')
@@ -71,12 +75,18 @@ def apply():
 
         rooms_changed = calc_changed_room(states, new_states)
 
+        print("new_states: {}".format(str(new_states)))
+        print("rooms_changed: {}".format(str(rooms_changed)))
+        print("auto_offs: {}".format(str(auto_offs)))
+
         for room in rooms_changed:
             if timers_to_turn_off[room]:
+                print("Remove timer for {}".format(room))
                 timers_to_turn_off[room].cancel()
                 timers_to_turn_off[room] = None
 
             if (new_states[room] != OFF_TEMPERATURE_VALUE) and (room in auto_offs):
+                print("Adding timer for {}".format(room))
                 timers_to_turn_off[room] = threading.Timer(AUTO_OFF_TIMER_IN_SECONDS, callback_turn_off_room, [room]).start()
 
         states = new_states
