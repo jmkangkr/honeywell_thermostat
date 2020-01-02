@@ -52,6 +52,8 @@ def index():
         print(temperature_and_humidity)
         temperatures_and_humidities.update(temperature_and_humidity)
 
+    temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [0.0, 0.0], 'COMPUTER_ROOM_SENSOR': [0.0, 0.0]})
+
     print(temperatures_and_humidities)
 
     return render_template('index.html', **states, **temperatures_and_humidities)
