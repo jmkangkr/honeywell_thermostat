@@ -137,29 +137,31 @@ def change_states(old_states, new_states):
             if room == LIVING_ROOM:
                 if new_temp == 25.0 and old_temp == 15.0:
                     rotate_rotary_encoder(20)
+                    time.sleep(6.0)
                 elif new_temp == 15.0 and old_temp == 25.0:
                     rotate_rotary_encoder(-20)
+                    time.sleep(6.0)
                 elif new_temp == 25.0 and old_temp == 25.0 or new_temp == 15.0 and old_temp == 15.0:
                     pass
                 else:
                     raise AssertionError("Unkown temperature")
-                time.sleep(6.0)
             else:
                 if new_temp == 25.0 and old_temp == 15.0:
                     _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
+                    time.sleep(0.5)
                 elif new_temp == 15.0 and old_temp == 25.0:
                     _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
+                    time.sleep(0.5)
                 elif new_temp == 25.0 and old_temp == 25.0 or new_temp == 15.0 and old_temp == 15.0:
                     pass
                 else:
                     raise AssertionError("Unkown temperature")
-                time.sleep(0.25)
         except KeyError:
             pass
 
         print("move to next room")
         _press_button_short(_BUTTON_ROOM_SELECT)
-        time.sleep(0.25)
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':
