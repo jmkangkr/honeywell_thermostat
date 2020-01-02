@@ -44,7 +44,7 @@
                 }
             </script>
             <div class="temperature">
-                <label for="LIVING_ROOM_TARGET_SELECTOR">Living Room (<script>roundD1({{LIVING_ROOM_SENSOR[0]}})</script>)</label>
+                <label for="LIVING_ROOM_TARGET_SELECTOR">Living Room ({{LIVING_ROOM_SENSOR[0]|round(1, 'common')}})</label>
                 <select id="LIVING_ROOM_TARGET_SELECTOR" name="LIVING_ROOM_TARGET">
                     <script>
                         createOptionWithValues("LIVING_ROOM_TARGET", roundHalf({{LIVING_ROOM_TARGET}}));
@@ -53,7 +53,7 @@
                 <input type="checkbox" name="LIVING_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="BED_ROOM_TARGET_SELECTOR">Bedroom (<script>roundD1({{BED_ROOM_SENSOR[0]}})</script>)</label>
+                <label for="BED_ROOM_TARGET_SELECTOR">Bedroom (<script>roundD1({{BED_ROOM_SENSOR[0]|round(1, 'common')}})</script>)</label>
                 <select id="BED_ROOM_TARGET_SELECTOR" name="BED_ROOM_TARGET">
                     <script>
                         createOptionWithValues("BED_ROOM_TARGET", roundHalf({{BED_ROOM_TARGET}}));
@@ -62,7 +62,7 @@
                 <input type="checkbox" name="BED_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="COMPUTER_ROOM_TARGET_SELECTOR">Lab13485 (<script>roundD1({{COMPUTER_ROOM_SENSOR[0]}})</script>)</label>
+                <label for="COMPUTER_ROOM_TARGET_SELECTOR">Lab13485 (<script>roundD1({{COMPUTER_ROOM_SENSOR[0]|round(1, 'common')}})</script>)</label>
                 <select id="COMPUTER_ROOM_TARGET_SELECTOR" name="COMPUTER_ROOM_TARGET">
                     <script>
                         createOptionWithValues("COMPUTER_ROOM_TARGET", roundHalf({{COMPUTER_ROOM_TARGET}}));
@@ -71,7 +71,7 @@
                 <input type="checkbox" name="COMPUTER_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="HANS_ROOM_TARGET_SELECTOR">Han's Room (<script>roundD1({{HANS_ROOM_SENSOR[0]}})</script>)</label>
+                <label for="HANS_ROOM_TARGET_SELECTOR">Han's Room (<script>roundD1({{HANS_ROOM_SENSOR[0]|round(1, 'common')}})</script>)</label>
                 <select id="HANS_ROOM_TARGET_SELECTOR" name="HANS_ROOM_TARGET">
                     <script>
                         createOptionWithValues("HANS_ROOM_TARGET", roundHalf({{HANS_ROOM_TARGET}}));
