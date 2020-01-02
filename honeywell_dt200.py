@@ -87,13 +87,13 @@ def gpio_init():
     GPIO.setup(_ROTARY_ENCODER_PIN_B, GPIO.OUT)
 
 
-LIVING_ROOM     = 'LIVING_ROOM'
-BED_ROOM        = 'BED_ROOM'
-COMPUTER_ROOM   = 'COMPUTER_ROOM'
-HANS_ROOM       = 'HANS_ROOM'
+LIVING_ROOM_TARGET     = 'LIVING_ROOM'
+BED_ROOM_TARGET        = 'BED_ROOM'
+COMPUTER_ROOM_TARGET   = 'COMPUTER_ROOM'
+HANS_ROOM_TARGET       = 'HANS_ROOM'
 
 #                                       Geo-sil      Bang1     Bang2          Bang3
-_ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT = [LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM]
+_ROOMS_ORDER_IN_HONEYWELL_THERMOSTAT = [LIVING_ROOM_TARGET, BED_ROOM_TARGET, COMPUTER_ROOM_TARGET, HANS_ROOM_TARGET]
 
 
 def rotate_rotary_encoder(count):
@@ -134,7 +134,7 @@ def change_states(old_states, new_states):
         try:
             new_temp = _round_to_half(new_states[room])
             old_temp = _round_to_half(old_states[room])
-            if room == LIVING_ROOM:
+            if room == LIVING_ROOM_TARGET:
                 if new_temp == 25.0 and old_temp == 15.0:
                     rotate_rotary_encoder(20)
                     time.sleep(6.0)

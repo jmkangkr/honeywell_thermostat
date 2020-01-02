@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM
+from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM_TARGET, BED_ROOM_TARGET, COMPUTER_ROOM_TARGET, HANS_ROOM_TARGET
 import threading
 import datetime
 import sys
@@ -14,10 +14,10 @@ OFF_TEMPERATURE_VALUE = 15.0
 AUTO_OFF_TIMER_IN_SECONDS = 60 * 10
 
 states = {
-    LIVING_ROOM:    OFF_TEMPERATURE_VALUE,
-    BED_ROOM:       OFF_TEMPERATURE_VALUE,
-    COMPUTER_ROOM:  OFF_TEMPERATURE_VALUE,
-    HANS_ROOM:      OFF_TEMPERATURE_VALUE
+    LIVING_ROOM_TARGET:    OFF_TEMPERATURE_VALUE,
+    BED_ROOM_TARGET:       OFF_TEMPERATURE_VALUE,
+    COMPUTER_ROOM_TARGET:  OFF_TEMPERATURE_VALUE,
+    HANS_ROOM_TARGET:      OFF_TEMPERATURE_VALUE
 }
 
 
@@ -26,10 +26,10 @@ current_temperatures = {
 }
 
 timers_to_turn_off = {
-    LIVING_ROOM:    None,
-    BED_ROOM:       None,
-    COMPUTER_ROOM:  None,
-    HANS_ROOM:      None
+    LIVING_ROOM_TARGET:    None,
+    BED_ROOM_TARGET:       None,
+    COMPUTER_ROOM_TARGET:  None,
+    HANS_ROOM_TARGET:      None
 }
 
 
@@ -48,9 +48,15 @@ def calc_changed_room(old_states, new_states):
 @app.route('/')
 @app.route('/index')
 def index():
-    temperature_and_humidity = urllib.request.urlopen("http://192.168.0.25:5000").read()
+    temperatures_and_humidities = {}
+
+    for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://kidroom-rpi:5000"]:
+        temperature_and_humidity = urllib.request.urlopen(url).read()
+        temperatures_and_humidities.update(temperature_and_humidity)
+
     print(temperature_and_humidity)
-    return render_template('index.html', **states, **current_temperatures)
+
+    return render_template('index.html', **states, **temperatures_and_humidities)
 
 
 @app.route('/sync')
@@ -134,10 +140,10 @@ def callback_turn_off_room(room):
 
 
 if __name__ == '__main__':
-    states[LIVING_ROOM]     = float(sys.argv[1])
-    states[BED_ROOM]        = float(sys.argv[2])
-    states[COMPUTER_ROOM]   = float(sys.argv[3])
-    states[HANS_ROOM]       = float(sys.argv[4])
+    states[LIVING_ROOM_TARGET]     = float(sys.argv[1])
+    states[BED_ROOM_TARGET]        = float(sys.argv[2])
+    states[COMPUTER_ROOM_TARGET]   = float(sys.argv[3])
+    states[HANS_ROOM_TARGET]       = float(sys.argv[4])
 
     gpio_init()
     print("============ " + str(datetime.datetime.now()))

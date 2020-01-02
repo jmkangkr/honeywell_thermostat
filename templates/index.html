@@ -40,40 +40,40 @@
                 }
             </script>
             <div class="temperature">
-                <label for="LIVING_ROOM_SELECTOR">Living Room</label>
-                <select id="LIVING_ROOM_SELECTOR" name="LIVING_ROOM">
+                <label for="LIVING_ROOM_TARGET_SELECTOR">Living Room</label>
+                <select id="LIVING_ROOM_TARGET_SELECTOR" name="LIVING_ROOM_TARGET">
                     <script>
-                        createOptionWithValues("LIVING_ROOM", roundHalf({{LIVING_ROOM}}));
+                        createOptionWithValues("LIVING_ROOM_TARGET", roundHalf({{LIVING_ROOM_TARGET}}));
                     </script>
                 </select>
-                <input type="checkbox" name="LIVING_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="LIVING_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="BED_ROOM_SELECTOR">Bedroom ({{BED_ROOM_TEMPERATURE}})</label>
-                <select id="BED_ROOM_SELECTOR" name="BED_ROOM">
+                <label for="BED_ROOM_TARGET_SELECTOR">Bedroom</label>
+                <select id="BED_ROOM_TARGET_SELECTOR" name="BED_ROOM_TARGET">
                     <script>
-                        createOptionWithValues("BED_ROOM", roundHalf({{BED_ROOM}}));
+                        createOptionWithValues("BED_ROOM_TARGET", roundHalf({{BED_ROOM_TARGET}}));
                     </script>
                 </select>
-                <input type="checkbox" name="BED_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="BED_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="COMPUTER_ROOM_SELECTOR">Lab 13485</label>
-                <select id="COMPUTER_ROOM_SELECTOR" name="COMPUTER_ROOM">
+                <label for="COMPUTER_ROOM_TARGET_SELECTOR">Lab13485</label>
+                <select id="COMPUTER_ROOM_TARGET_SELECTOR" name="COMPUTER_ROOM_TARGET">
                     <script>
-                        createOptionWithValues("COMPUTER_ROOM", roundHalf({{COMPUTER_ROOM}}));
+                        createOptionWithValues("COMPUTER_ROOM_TARGET", roundHalf({{COMPUTER_ROOM_TARGET}}));
                     </script>
                 </select>
-                <input type="checkbox" name="COMPUTER_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="COMPUTER_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="HANS_ROOM_SELECTOR">Han's Room</label>
-                <select id="HANS_ROOM_SELECTOR" name="HANS_ROOM">
+                <label for="HANS_ROOM_TARGET_SELECTOR">Han's Room</label>
+                <select id="HANS_ROOM_TARGET_SELECTOR" name="HANS_ROOM_TARGET">
                     <script>
-                        createOptionWithValues("HANS_ROOM", roundHalf({{HANS_ROOM}}));
+                        createOptionWithValues("HANS_ROOM_TARGET", roundHalf({{HANS_ROOM_TARGET}}));
                     </script>
                 </select>
-                <input type="checkbox" name="HANS_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="HANS_ROOM_TARGET_AUTO_OFF">Auto-off
             </div>
         </div>
 
