@@ -1,150 +1,160 @@
 from flask import Flask, render_template, request, redirect, url_for
-from honeywell_dt200 import gpio_init, change_states, LIVING_ROOM_TARGET, BED_ROOM_TARGET, COMPUTER_ROOM_TARGET, HANS_ROOM_TARGET
+from honeywell_dt200 import gpio_init, change_states
 import threading
 import datetime
-import sys
-import time
 import urllib.request
 import json
+import atexit
+import time
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 app = Flask(__name__)
 
 
-OFF_TEMPERATURE_VALUE = 15.0
-AUTO_OFF_TIMER_IN_SECONDS = 60 * 10
+OFF_TEMPERATURE = 10.0
+ON_TEMPERATURE = 25.0
+
+OUT_PIPE_TEMPERATURE_LIMIT = 32.0
+
+LIVING_ROOM     = 'LIVING_ROOM'
+BED_ROOM        = 'BED_ROOM'
+COMPUTER_ROOM   = 'COMPUTER_ROOM'
+HANS_ROOM       = 'HANS_ROOM'
+ROOMS = (LIVING_ROOM, BED_ROOM, COMPUTER_ROOM, HANS_ROOM)
+
+
+TARGET      = 0
+CURRENT     = 1
+OUT_PIPE    = 2
+BOILER      = 3
+
 
 states = {
-    LIVING_ROOM_TARGET:    OFF_TEMPERATURE_VALUE,
-    BED_ROOM_TARGET:       OFF_TEMPERATURE_VALUE,
-    COMPUTER_ROOM_TARGET:  OFF_TEMPERATURE_VALUE,
-    HANS_ROOM_TARGET:      OFF_TEMPERATURE_VALUE
+    # ROOM          TARGET              CURRENT     INPUT   BOILER
+    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
+    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
+    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
+    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
 }
 
 
-timers_to_turn_off = {
-    LIVING_ROOM_TARGET:    None,
-    BED_ROOM_TARGET:       None,
-    COMPUTER_ROOM_TARGET:  None,
-    HANS_ROOM_TARGET:      None
+sensor_map = {
+    # ROOM          TARGET                  CURRENT                 OUT_PIPE
+    LIVING_ROOM  : ['LIVING_ROOM_TARGET',   'LIVING_ROOM_SENSOR',   'OUT_LIVING_ROOM0_SENSOR',  ],
+    BED_ROOM     : ['BED_ROOM_TARGET',      'BED_ROOM_SENSOR',      'OUT_BED_ROOM_SENSOR',      ],
+    COMPUTER_ROOM: ['COMPUTER_ROOM_TARGET', 'COMPUTER_ROOM_SENSOR', 'OUT_COMPUTER_ROOM_SENSOR', ],
+    HANS_ROOM    : ['HANS_ROOM_TARGET',     'HANS_ROOM_SENSOR',     'OUT_HANS_ROOM_SENSOR',     ],
 }
 
 
 lock = threading.Lock()
 
 
-def calc_changed_room(old_states, new_states):
-    rooms_changed = set()
-    for room in old_states:
-        if old_states[room] != new_states[room]:
-            rooms_changed.add(room)
+def update_sensor_states():
+    global states
 
-    return rooms_changed
+    with lock:
+        temperatures_and_humidities = {}
+
+        for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000"]:
+            temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+            temperatures_and_humidities.update(temperature_and_humidity)
+
+        temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [5.0, 0.0], 'COMPUTER_ROOM_SENSOR': [5.0, 0.0]})
+
+        print(temperatures_and_humidities)
+
+        for room in ROOMS:
+            states[room][CURRENT]   = temperatures_and_humidities[sensor_map[room][CURRENT]]
+            states[room][OUT_PIPE]  = temperatures_and_humidities[sensor_map[room][OUT_PIPE]]
+
+
+def update_targets(new_targets):
+    global states
+
+    with lock:
+        for room in ROOMS:
+            states[room][TARGET] = new_targets[room]
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    temperatures_and_humidities = {}
-
-    for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000"]:
-        temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-        print(temperature_and_humidity)
-        temperatures_and_humidities.update(temperature_and_humidity)
-
-    temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [0.0, 0.0], 'COMPUTER_ROOM_SENSOR': [0.0, 0.0]})
-
-    print(temperatures_and_humidities)
-
-    return render_template('index.html', **states, **temperatures_and_humidities)
-
-
-@app.route('/sync')
-def sync():
-    return render_template('sync.html', **states)
+    update_sensor_states()
+    return render_template('index.html', **states)
 
 
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
     global states
-    global lock
 
     with lock:
         print("Apply: {}".format(request.form))
-        new_states = {}
+
+        new_targets = {}
         auto_offs = set()
-        for room, temperature in request.form.items():
-            if room.endswith("AUTO_OFF"):
-                if temperature == 'on':
-                    auto_offs.add(room)
-            else:
-                new_states[room] = float(temperature)
+        for name, value in request.form.items():
+            if name.endswith("_TARGET"):
+                states[name.replace("_TARGET", "")][TARGET] = float(value)
+            elif name.endswith("_AUTO_OFF"):
+                auto_offs.add(name.replace("_AUTO_OFF", ""))
 
-        change_states(states, new_states)
+        old_onoffs = [states[room][TARGET] != OFF_TEMPERATURE for room in ROOMS]
+        new_onoffs = [new_targets[room] != OFF_TEMPERATURE for room in ROOMS]
 
-        rooms_changed = calc_changed_room(states, new_states)
+        change_states(old_onoffs, new_onoffs)
 
-        print("new_states: {}".format(str(new_states)))
-        print("rooms_changed: {}".format(str(rooms_changed)))
-        print("auto_offs: {}".format(str(auto_offs)))
+        update_targets(new_targets)
 
-        for room in rooms_changed:
-            if timers_to_turn_off[room]:
-                print("Remove timer for {}".format(room))
-                timers_to_turn_off[room].cancel()
-                timers_to_turn_off[room] = None
-
-            if (new_states[room] != OFF_TEMPERATURE_VALUE) and (room in auto_offs):
-                print("Adding timer for {}".format(room))
-                timers_to_turn_off[room] = threading.Timer(AUTO_OFF_TIMER_IN_SECONDS, callback_turn_off_room, [room]).start()
-
-        states = new_states
-
-        return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 
-@app.route('/force_sync', methods=['POST', 'GET'])
-def force_sync():
-    global states
-    global lock
+def temperature_keeping_task():
+    print("{} Temperature Keeping Task".format(time.strftime("%Y-%m-%d %H:%M:%S")))
 
     with lock:
-        print("Force sync: {}".format(request.form))
-        new_states = {}
-        for room, temperature in request.form.items():
-            if room.endswith("AUTO_OFF"):
-                pass
+        update_sensor_states()
+
+        new_onoffs = {}
+        for room in ROOMS:
+            target = states[room][TARGET]
+            current = states[room][CURRENT][0]
+            out = states[room][OUT_PIPE]
+            print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
+            if states[room][CURRENT][0] < states[room][TARGET] and states[room][OUT_PIPE] < OUT_PIPE_TEMPERATURE_LIMIT:
+                print("Should be ON")
+                new_onoffs[room] = True
+            elif states[room][CURRENT][0] >= states[room][TARGET] or states[room][OUT_PIPE] >= OUT_PIPE_TEMPERATURE_LIMIT:
+                print("Should be OFF")
+                new_onoffs[room] = False
             else:
-                new_states[room] = float(temperature)
+                raise AssertionError("Can't happen")
 
-        states = new_states
+        old_onoffs = [states[room][BOILER] for room in ROOMS]
+        print("Calling change_states: {} -> {}".format(old_onoffs, new_onoffs))
+        change_states(old_onoffs, new_onoffs)
 
-        return redirect(url_for('sync'))
-
-
-def callback_turn_off_room(room):
-    global states
-
-    with lock:
-        new_states = states.copy()
-        new_states[room] = OFF_TEMPERATURE_VALUE
-
-        print("Auto-off: {}".format(room))
-        change_states(states, new_states)
-
-        states = new_states
-
-        timers_to_turn_off[room] = None
-
-        time.sleep(2.0)
+        for room in ROOMS:
+            states[room][BOILER] = new_onoffs[room]
 
 
 if __name__ == '__main__':
-    states[LIVING_ROOM_TARGET]     = float(sys.argv[1])
-    states[BED_ROOM_TARGET]        = float(sys.argv[2])
-    states[COMPUTER_ROOM_TARGET]   = float(sys.argv[3])
-    states[HANS_ROOM_TARGET]       = float(sys.argv[4])
+    global states
+
+    print("<Initial setup guide>")
+    print("Turn on all rooms and set target temperatures to {:.1f}".format(ON_TEMPERATURE))
+    input("Press Enter when ready...")
+
+    temperature_keeping_task()
+
+    print("============ " + datetime.datetime.now().strftime('%Y-%m-d %H:%M:%S'))
 
     gpio_init()
-    print("============ " + str(datetime.datetime.now()))
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/10')
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown())
+
     app.run(use_reloader=False, debug=True, host='0.0.0.0')
