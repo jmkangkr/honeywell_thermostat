@@ -22,7 +22,7 @@ app = Flask(__name__)
 OFF_TEMPERATURE = 10.0
 ON_TEMPERATURE = 25.0
 
-OUT_PIPE_TEMPERATURE_LIMIT = 32.0
+OUT_PIPE_TEMPERATURE_LIMIT = 33.5
 
 LIVING_ROOM     = 'LIVING_ROOM'
 BED_ROOM        = 'BED_ROOM'
@@ -159,7 +159,7 @@ def setup_logger(logger_name, log_dir_name, log_file_name):
     except FileExistsError:
         pass
 
-    fh = TimedRotatingFileHandler(os.path.join(log_dir_name, log_file_name), when="midnight", backupCount=14)
+    fh = TimedRotatingFileHandler(os.path.join(log_dir_name, log_file_name), when="midnight", backupCount=2)
 
     fh.setLevel(logging.NOTSET)
 
