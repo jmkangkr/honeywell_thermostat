@@ -140,8 +140,6 @@ def temperature_keeping_task():
 
 
 if __name__ == '__main__':
-    global states
-
     print("<Initial setup guide>")
     print("Turn on all rooms and set target temperatures to {:.1f}".format(ON_TEMPERATURE))
     input("Press Enter when ready...")
