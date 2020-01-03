@@ -22,7 +22,7 @@ app = Flask(__name__)
 OFF_TEMPERATURE = 10.0
 ON_TEMPERATURE = 25.0
 
-OUT_PIPE_TEMPERATURE_LIMIT = 33.5
+OUT_PIPE_TEMPERATURE_LIMIT = 33.0
 
 LIVING_ROOM     = 'LIVING_ROOM'
 BED_ROOM        = 'BED_ROOM'
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     temperature_keeping_task()
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/10')
+    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/15')
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())
 
