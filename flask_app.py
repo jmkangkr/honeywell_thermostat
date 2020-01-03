@@ -126,7 +126,7 @@ def temperature_keeping_task():
 
     update_sensor_states()
 
-    new_onoffs = {}
+    new_onoffs =[]
     for room in ROOMS:
         target = states[room][TARGET]
         current = states[room][CURRENT][0]
@@ -134,10 +134,10 @@ def temperature_keeping_task():
         print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
         if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT:
             print("Should be ON")
-            new_onoffs[room] = True
+            new_onoffs.append(True)
         elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT:
             print("Should be OFF")
-            new_onoffs[room] = False
+            new_onoffs.append(False)
         else:
             raise AssertionError("Can't happen")
 
