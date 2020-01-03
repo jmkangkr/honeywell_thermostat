@@ -115,7 +115,7 @@ if __name__ == '__main__':
     _count = input("Input count to increase/decrease: ")
 
     for _room_index, _ in enumerate(_ROOMS):
-        if _room_selected == _room_index:
+        if int(_room_selected) == _room_index:
             rotate_rotary_encoder(int(_count))
 
         _press_button_short(_BUTTON_ROOM_SELECT)
