@@ -149,9 +149,9 @@ def temperature_keeping_task():
 
 if __name__ == '__main__':
     states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
-    states[LIVING_ROOM][BOILER] = True if sys.argv[2].lower() == 't' else False
-    states[LIVING_ROOM][BOILER] = True if sys.argv[3].lower() == 't' else False
-    states[LIVING_ROOM][BOILER] = True if sys.argv[4].lower() == 't' else False
+    states[BED_ROOM][BOILER] = True if sys.argv[2].lower() == 't' else False
+    states[COMPUTER_ROOM][BOILER] = True if sys.argv[3].lower() == 't' else False
+    states[HANS_ROOM][BOILER] = True if sys.argv[4].lower() == 't' else False
 
     gpio_init()
 
