@@ -103,20 +103,19 @@ def index():
 def apply():
     global states
 
-    with lock:
-        print("Apply: {}".format(request.form))
+    print("Apply: {}".format(request.form))
 
-        new_targets = {}
-        auto_offs = set()
-        for name, value in request.form.items():
-            if name.endswith("_TARGET"):
-                states[name.replace("_TARGET", "")][TARGET] = float(value)
-            elif name.endswith("_AUTO_OFF"):
-                auto_offs.add(name.replace("_AUTO_OFF", ""))
+    new_targets = {}
+    auto_offs = set()
+    for name, value in request.form.items():
+        if name.endswith("_TARGET"):
+            states[name.replace("_TARGET", "")][TARGET] = float(value)
+        elif name.endswith("_AUTO_OFF"):
+            auto_offs.add(name.replace("_AUTO_OFF", ""))
 
-        update_targets(new_targets)
+    update_targets(new_targets)
 
-        temperature_keeping_task()
+    temperature_keeping_task()
 
     return redirect(url_for('index'))
 
