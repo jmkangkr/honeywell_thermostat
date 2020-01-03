@@ -78,6 +78,20 @@ def update_targets(new_targets):
             states[room][TARGET] = new_targets[room]
 
 
+def update_boilers(new_onoffs):
+    global states
+
+    with lock:
+        for room in ROOMS:
+            states[room][BOILER] = new_onoffs[room]
+
+
+def send_state_changes(old_onoffs, new_onoffs):
+    with lock:
+        print("Calling change_states: {} -> {}".format(old_onoffs, new_onoffs))
+        change_states(old_onoffs, new_onoffs)
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -100,12 +114,9 @@ def apply():
             elif name.endswith("_AUTO_OFF"):
                 auto_offs.add(name.replace("_AUTO_OFF", ""))
 
-        old_onoffs = [states[room][TARGET] != OFF_TEMPERATURE for room in ROOMS]
-        new_onoffs = [new_targets[room] != OFF_TEMPERATURE for room in ROOMS]
-
-        change_states(old_onoffs, new_onoffs)
-
         update_targets(new_targets)
+
+        temperature_keeping_task()
 
     return redirect(url_for('index'))
 
@@ -113,30 +124,27 @@ def apply():
 def temperature_keeping_task():
     print("{} Temperature Keeping Task".format(time.strftime("%Y-%m-%d %H:%M:%S")))
 
-    with lock:
-        update_sensor_states()
+    update_sensor_states()
 
-        new_onoffs = {}
-        for room in ROOMS:
-            target = states[room][TARGET]
-            current = states[room][CURRENT][0]
-            out = states[room][OUT_PIPE]
-            print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
-            if states[room][CURRENT][0] < states[room][TARGET] and states[room][OUT_PIPE] < OUT_PIPE_TEMPERATURE_LIMIT:
-                print("Should be ON")
-                new_onoffs[room] = True
-            elif states[room][CURRENT][0] >= states[room][TARGET] or states[room][OUT_PIPE] >= OUT_PIPE_TEMPERATURE_LIMIT:
-                print("Should be OFF")
-                new_onoffs[room] = False
-            else:
-                raise AssertionError("Can't happen")
+    new_onoffs = {}
+    for room in ROOMS:
+        target = states[room][TARGET]
+        current = states[room][CURRENT][0]
+        out = states[room][OUT_PIPE]
+        print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
+        if states[room][CURRENT][0] < states[room][TARGET] and states[room][OUT_PIPE] < OUT_PIPE_TEMPERATURE_LIMIT:
+            print("Should be ON")
+            new_onoffs[room] = True
+        elif states[room][CURRENT][0] >= states[room][TARGET] or states[room][OUT_PIPE] >= OUT_PIPE_TEMPERATURE_LIMIT:
+            print("Should be OFF")
+            new_onoffs[room] = False
+        else:
+            raise AssertionError("Can't happen")
 
-        old_onoffs = [states[room][BOILER] for room in ROOMS]
-        print("Calling change_states: {} -> {}".format(old_onoffs, new_onoffs))
-        change_states(old_onoffs, new_onoffs)
+    old_onoffs = [states[room][BOILER] for room in ROOMS]
+    send_state_changes(old_onoffs, new_onoffs)
 
-        for room in ROOMS:
-            states[room][BOILER] = new_onoffs[room]
+    update_boilers(new_onoffs)
 
 
 if __name__ == '__main__':
