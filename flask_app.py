@@ -152,11 +152,9 @@ if __name__ == '__main__':
     print("Turn on all rooms and set target temperatures to {:.1f}".format(ON_TEMPERATURE))
     input("Press Enter when ready...")
 
-    temperature_keeping_task()
-
-    print("============ " + datetime.datetime.now().strftime('%Y-%m-d %H:%M:%S'))
-
     gpio_init()
+
+    temperature_keeping_task()
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(temperature_keeping_task, 'cron', minute='*/10')
