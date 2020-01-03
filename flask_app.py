@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from honeywell_dt200 import gpio_init, change_states
 import threading
 import datetime
+import sys
 import urllib.request
 import json
 import atexit
@@ -147,9 +148,10 @@ def temperature_keeping_task():
 
 
 if __name__ == '__main__':
-    print("<Initial setup guide>")
-    print("Turn on all rooms and set target temperatures to {:.1f}".format(ON_TEMPERATURE))
-    input("Press Enter when ready...")
+    states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
+    states[LIVING_ROOM][BOILER] = True if sys.argv[2].lower() == 't' else False
+    states[LIVING_ROOM][BOILER] = True if sys.argv[3].lower() == 't' else False
+    states[LIVING_ROOM][BOILER] = True if sys.argv[4].lower() == 't' else False
 
     gpio_init()
 
