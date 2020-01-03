@@ -31,11 +31,11 @@ BOILER      = 3
 
 
 states = {
-    # ROOM          TARGET              CURRENT     INPUT   BOILER
-    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
-    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
-    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
-    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), 0.0,    True],
+    # ROOM          TARGET              CURRENT     INPUT       BOILER
+    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
+    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
+    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
+    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
 }
 
 
@@ -130,12 +130,12 @@ def temperature_keeping_task():
     for room in ROOMS:
         target = states[room][TARGET]
         current = states[room][CURRENT][0]
-        out = states[room][OUT_PIPE]
+        out = states[room][OUT_PIPE][0]
         print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
-        if states[room][CURRENT][0] < states[room][TARGET] and states[room][OUT_PIPE] < OUT_PIPE_TEMPERATURE_LIMIT:
+        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT:
             print("Should be ON")
             new_onoffs[room] = True
-        elif states[room][CURRENT][0] >= states[room][TARGET] or states[room][OUT_PIPE] >= OUT_PIPE_TEMPERATURE_LIMIT:
+        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT:
             print("Should be OFF")
             new_onoffs[room] = False
         else:
