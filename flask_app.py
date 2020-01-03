@@ -61,7 +61,7 @@ def update_sensor_states():
             temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
             temperatures_and_humidities.update(temperature_and_humidity)
 
-        temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [5.0, 0.0], 'COMPUTER_ROOM_SENSOR': [5.0, 0.0]})
+        temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
 
         print(temperatures_and_humidities)
 
