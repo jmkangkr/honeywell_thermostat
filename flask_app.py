@@ -102,15 +102,12 @@ def index():
 
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
-    global states
-
     print("Apply: {}".format(request.form))
-
     new_targets = {}
     auto_offs = set()
     for name, value in request.form.items():
         if name.endswith("_TARGET"):
-            states[name.replace("_TARGET", "")][TARGET] = float(value)
+            new_targets[name.replace("_TARGET", "")] = float(value)
         elif name.endswith("_AUTO_OFF"):
             auto_offs.add(name.replace("_AUTO_OFF", ""))
 
