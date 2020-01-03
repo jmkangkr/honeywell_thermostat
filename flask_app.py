@@ -8,6 +8,12 @@ import json
 import atexit
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
+import logging
+from logging.handlers import TimedRotatingFileHandler
+import os
+
+
+log = None
 
 
 app = Flask(__name__)
@@ -32,7 +38,7 @@ BOILER      = 3
 
 
 states = {
-    # ROOM          TARGET              CURRENT     INPUT       BOILER
+    # ROOM          TARGET              CURRENT     OUT PIPE    BOILER
     LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
     BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
     COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
@@ -64,7 +70,7 @@ def update_sensor_states():
 
         temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
 
-        print(temperatures_and_humidities)
+        log.info(str(temperatures_and_humidities))
 
         for room in ROOMS:
             states[room][CURRENT]   = temperatures_and_humidities[sensor_map[room][CURRENT]]
@@ -89,7 +95,7 @@ def update_boilers(new_onoffs):
 
 def send_state_changes(old_onoffs, new_onoffs):
     with lock:
-        print("Calling change_states: {} -> {}".format(old_onoffs, new_onoffs))
+        log.info("Calling change_states: {} -> {}".format(old_onoffs, new_onoffs))
         change_states(old_onoffs, new_onoffs)
 
 
@@ -102,7 +108,7 @@ def index():
 
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
-    print("Apply: {}".format(request.form))
+    log.info("Apply: {}".format(request.form))
     new_targets = {}
     auto_offs = set()
     for name, value in request.form.items():
@@ -119,7 +125,7 @@ def apply():
 
 
 def temperature_keeping_task():
-    print("{} Temperature Keeping Task".format(time.strftime("%Y-%m-%d %H:%M:%S")))
+    log.info("Temperature Keeping Task")
 
     update_sensor_states()
 
@@ -128,12 +134,12 @@ def temperature_keeping_task():
         target = states[room][TARGET]
         current = states[room][CURRENT][0]
         out = states[room][OUT_PIPE][0]
-        print("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
+        log.info("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
         if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT:
-            print("Should be ON")
+            log.info("Should be ON")
             new_onoffs[room] = True
         elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT:
-            print("Should be OFF")
+            log.info("Should be OFF")
             new_onoffs[room] = False
         else:
             raise AssertionError("Can't happen")
@@ -144,11 +150,39 @@ def temperature_keeping_task():
     update_boilers(new_onoffs)
 
 
+def setup_logger(logger_name, log_dir_name, log_file_name):
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+
+    try:
+        os.makedirs(log_dir_name)
+    except FileExistsError:
+        pass
+
+    fh = TimedRotatingFileHandler(os.path.join(log_dir_name, log_file_name), when="midnight", backupCount=14)
+
+    fh.setLevel(logging.NOTSET)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.NOTSET)
+
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter)
+
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
+    return logger
+
+
 if __name__ == '__main__':
     states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
     states[BED_ROOM][BOILER] = True if sys.argv[2].lower() == 't' else False
     states[COMPUTER_ROOM][BOILER] = True if sys.argv[3].lower() == 't' else False
     states[HANS_ROOM][BOILER] = True if sys.argv[4].lower() == 't' else False
+
+    log = setup_logger(__name__, 'logs', 'thermostat.log')
 
     gpio_init()
 

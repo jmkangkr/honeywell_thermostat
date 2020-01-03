@@ -1,5 +1,9 @@
 import RPi.GPIO as GPIO
 import time
+import logging
+
+
+log = None
 
 
 # GPIO pin number for buttons and rotary encoder
@@ -64,6 +68,10 @@ def _rotary_encoder(pin_a, pin_b, secs_per_change, count):
 
 
 def gpio_init():
+    global log
+
+    log = logging.getLogger(__name__)
+
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(_BUTTON_HEATING_LEAVING_OFF, GPIO.OUT)
     GPIO.setup(_BUTTON_MODE, GPIO.OUT)
@@ -80,32 +88,32 @@ def rotate_rotary_encoder(count):
 
 
 def change_states(old_states, new_states):
-    print("State changes: {} -> {}".format(old_states, new_states))
+    log.info("State changes: {} -> {}".format(old_states, new_states))
     for index, room in enumerate(_ROOMS):
-        print("=== {} ===".format(room))
+        log.info("=== {} ===".format(room))
         if room == _LIVING_ROOM:
             if new_states[index] and not old_states[index]:
-                print("Turning ON")
+                log.info("Turning ON")
                 rotate_rotary_encoder(30)
                 time.sleep(6.0)
             elif not new_states[index] and old_states[index]:
-                print("Turning OFF")
+                log.info("Turning OFF")
                 rotate_rotary_encoder(-30)
                 time.sleep(6.0)
         else:
             if new_states[index] and not old_states[index]:
-                print("Turning ON")
+                log.info("Turning ON")
                 _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
                 time.sleep(0.5)
             elif not new_states[index] and old_states[index]:
-                print("Turning OFF")
+                log.info("Turning OFF")
                 _press_button_short(_BUTTON_HEATING_LEAVING_OFF)
                 time.sleep(0.5)
 
         _press_button_short(_BUTTON_ROOM_SELECT)
         time.sleep(0.5)
 
-    print("========================")
+    log.info("========================")
 
 
 if __name__ == '__main__':
