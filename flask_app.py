@@ -161,7 +161,7 @@ def setup_logger(logger_name, log_dir_name, log_file_name):
         pass
 
     fh = TimedRotatingFileHandler(os.path.join(log_dir_name, log_file_name), when="midnight", backupCount=2)
-    fh.setLevel(logging.INFO)
+    fh.setLevel(logging.NOTSET)
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
