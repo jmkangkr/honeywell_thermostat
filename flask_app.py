@@ -60,6 +60,8 @@ lock = threading.Lock()
 
 
 def update_sensor_states():
+    log.info("Updating sensor data")
+
     global states
 
     with lock:
