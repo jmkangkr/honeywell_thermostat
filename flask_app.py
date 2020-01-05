@@ -60,7 +60,7 @@ lock = threading.Lock()
 
 
 def update_sensor_states():
-    log.info("Updating sensor data")
+    log.info("TASK - Updating sensor data")
 
     global states
 
@@ -128,7 +128,7 @@ def apply():
 
 
 def temperature_keeping_task():
-    log.info("Temperature Keeping Task")
+    log.info("TASK - Temperature Keeping Task")
 
     new_onoffs = {}
     for room in ROOMS:
@@ -167,7 +167,7 @@ def setup_logger(logger_name, log_dir_name, log_file_name):
     ch = logging.StreamHandler()
     ch.setLevel(logging.NOTSET)
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%H:%M:%S')
     ch.setFormatter(formatter)
     fh.setFormatter(formatter)
 
