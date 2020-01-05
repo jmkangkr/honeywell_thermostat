@@ -73,7 +73,7 @@ def update_sensor_states():
 
         temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
 
-        log.info('\n' + str(temperatures_and_humidities))
+        log.info('Sensor data\n' + str(temperatures_and_humidities))
 
         for room in ROOMS:
             states[room][CURRENT]   = temperatures_and_humidities[sensor_map[room][CURRENT]]
