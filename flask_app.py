@@ -7,6 +7,7 @@ import urllib.request
 import json
 import atexit
 import time
+from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -127,8 +128,6 @@ def apply():
 def temperature_keeping_task():
     log.info("Temperature Keeping Task")
 
-    update_sensor_states()
-
     new_onoffs = {}
     for room in ROOMS:
         target = states[room][TARGET]
@@ -186,11 +185,16 @@ if __name__ == '__main__':
 
     gpio_init()
 
-    temperature_keeping_task()
-
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/15')
-    scheduler.start()
+    scheduler = BackgroundScheduler(logger=log, executors={'default': ThreadPoolExecutor(1)})
     atexit.register(lambda: scheduler.shutdown())
+
+    # Initial update
+    scheduler.add_job(update_sensor_states)
+    scheduler.add_job(temperature_keeping_task)
+
+    scheduler.add_job(update_sensor_states, 'cron', second=15, minute='*', misfire_grace_time=10, coalesce=True)
+    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/15', misfire_grace_time=120, coalesce=True)
+
+    scheduler.start()
 
     app.run(use_reloader=False, debug=True, host='0.0.0.0')
