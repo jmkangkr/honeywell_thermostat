@@ -153,7 +153,7 @@ def temperature_keeping_task():
 
 def setup_logger(logger_name, log_dir_name, log_file_name):
     logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     try:
         os.makedirs(log_dir_name)
@@ -161,11 +161,10 @@ def setup_logger(logger_name, log_dir_name, log_file_name):
         pass
 
     fh = TimedRotatingFileHandler(os.path.join(log_dir_name, log_file_name), when="midnight", backupCount=2)
-
-    fh.setLevel(logging.NOTSET)
+    fh.setLevel(logging.INFO)
 
     ch = logging.StreamHandler()
-    ch.setLevel(logging.NOTSET)
+    ch.setLevel(logging.INFO)
 
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', '%H:%M:%S')
     ch.setFormatter(formatter)
