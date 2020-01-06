@@ -39,6 +39,8 @@ OUT_PIPE    = 2
 BOILER      = 3
 
 
+last_temperatures_and_humidities = None
+
 states = {
     # ROOM          TARGET              CURRENT     OUT PIPE    BOILER
     LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
@@ -71,32 +73,32 @@ def signal_handler(sig, frame):
         raise FlaskStopException()
 
 
-def db_update(t, temperatures_and_humidities):
-    for sensor_name, (temperature, humidity) in temperatures_and_humidities.items():
-        thermostat_db.insert_sensor_data(t, sensor_name, temperature, humidity)
+def db_update():
+    global last_temperatures_and_humidities
+    for sensor_name, (temperature, humidity) in last_temperatures_and_humidities.items():
+        thermostat_db.insert_sensor_data(datetime.datetime.now(), sensor_name, temperature, humidity)
 
 
 def update_sensor_states():
     log.info("TASK - Updating sensor data")
 
     global states
+    global last_temperatures_and_humidities
 
     with lock:
-        temperatures_and_humidities = {}
+        last_temperatures_and_humidities = {}
 
         for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000"]:
             temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-            temperatures_and_humidities.update(temperature_and_humidity)
+            last_temperatures_and_humidities.update(temperature_and_humidity)
 
-        temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
+        last_temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
 
-        log.info('Sensor data\n' + str(temperatures_and_humidities))
+        log.info('Sensor data\n' + str(last_temperatures_and_humidities))
 
         for room in ROOMS:
-            states[room][CURRENT]   = temperatures_and_humidities[sensor_map[room][CURRENT]]
-            states[room][OUT_PIPE]  = temperatures_and_humidities[sensor_map[room][OUT_PIPE]]
-
-        db_update(datetime.datetime.now(), temperatures_and_humidities)
+            states[room][CURRENT]   = last_temperatures_and_humidities[sensor_map[room][CURRENT]]
+            states[room][OUT_PIPE]  = last_temperatures_and_humidities[sensor_map[room][OUT_PIPE]]
 
 
 def update_targets(new_targets):
@@ -124,7 +126,6 @@ def send_state_changes(old_onoffs, new_onoffs):
 @app.route('/')
 @app.route('/index')
 def index():
-    update_sensor_states()
     return render_template('index.html', **states)
 
 
@@ -250,9 +251,10 @@ if __name__ == '__main__':
 
     scheduler.add_job(db_close, next_run_time=None, id='db_close', misfire_grace_time=None)
 
-    scheduler.add_job(update_sensor_states, 'cron', second=15, minute='*', misfire_grace_time=10, coalesce=True)
-    scheduler.add_job(temperature_keeping_task, 'cron', minute='*/15', misfire_grace_time=120, coalesce=True)
-    scheduler.add_job(db_rollover, 'cron', second=45, minute=59, hour=23)
+    scheduler.add_job(update_sensor_states,     'cron', second= 0, minute='*',    misfire_grace_time=15, coalesce=True)
+    scheduler.add_job(db_update,                'cron', second=10, minute='*',    misfire_grace_time=15, coalesce=True)
+    scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
+    scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23)
 
     scheduler.start()
 
@@ -262,4 +264,3 @@ if __name__ == '__main__':
         log.info("End of Flask app")
 
     log.info("End of Program")
-
