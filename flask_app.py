@@ -1,24 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for
 from honeywell_dt200 import gpio_init, change_states
 import threading
-import datetime
 import sys
 import urllib.request
 import json
-import atexit
-import time
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.events import EVENT_JOB_ERROR
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from database import ThermostatDatabase
 import os
+import signal
+import datetime
 
 
 log = None
-
-
+scheduler = None
 app = Flask(__name__)
-
+lock = threading.Lock()
+thermostat_db = None
 
 OFF_TEMPERATURE = 10.0
 ON_TEMPERATURE = 25.0
@@ -56,7 +57,23 @@ sensor_map = {
 }
 
 
-lock = threading.Lock()
+
+class FlaskStopException(Exception):
+    pass
+
+
+def signal_handler(sig, frame):
+    log.info("signal_handler: SIGINT")
+
+    if scheduler:
+        scheduler.resume_job('db_close')
+    else:
+        raise FlaskStopException()
+
+
+def db_update(t, temperatures_and_humidities):
+    for sensor_name, (temperature, humidity) in temperatures_and_humidities.items():
+        thermostat_db.insert_sensor_data(t, sensor_name, temperature, humidity)
 
 
 def update_sensor_states():
@@ -78,6 +95,8 @@ def update_sensor_states():
         for room in ROOMS:
             states[room][CURRENT]   = temperatures_and_humidities[sensor_map[room][CURRENT]]
             states[room][OUT_PIPE]  = temperatures_and_humidities[sensor_map[room][OUT_PIPE]]
+
+        db_update(datetime.datetime.now(), temperatures_and_humidities)
 
 
 def update_targets(new_targets):
@@ -176,6 +195,39 @@ def setup_logger(logger_name, log_dir_name, log_file_name):
     return logger
 
 
+def listen_to_apscheduler(event):
+    global scheduler
+
+    if event.code == EVENT_JOB_ERROR:
+        scheduler.shutdown(wait=True)
+        scheduler = None
+
+
+def db_close():
+    log.info("db_close")
+
+    global thermostat_db
+    global scheduler
+
+    thermostat_db.close()
+
+    scheduler.shutdown(wait=False)
+    scheduler = None
+
+
+def db_open():
+    log.info("db_open")
+
+    global thermostat_db
+
+    thermostat_db = ThermostatDatabase()
+    thermostat_db.open()
+
+
+def db_rollover():
+    thermostat_db.rollover()
+
+
 if __name__ == '__main__':
     states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
     states[BED_ROOM][BOILER] = True if sys.argv[2].lower() == 't' else False
@@ -183,19 +235,31 @@ if __name__ == '__main__':
     states[HANS_ROOM][BOILER] = True if sys.argv[4].lower() == 't' else False
 
     log = setup_logger(__name__, 'logs', 'thermostat.log')
+    signal.signal(signal.SIGINT, signal_handler)
 
     gpio_init()
 
     scheduler = BackgroundScheduler(logger=log, executors={'default': ThreadPoolExecutor(1)})
-    atexit.register(lambda: scheduler.shutdown())
+
+    scheduler.add_listener(listen_to_apscheduler)
 
     # Initial update
+    scheduler.add_job(db_open)
     scheduler.add_job(update_sensor_states)
     scheduler.add_job(temperature_keeping_task)
 
+    scheduler.add_job(db_close, next_run_time=None, id='db_close', misfire_grace_time=None)
+
     scheduler.add_job(update_sensor_states, 'cron', second=15, minute='*', misfire_grace_time=10, coalesce=True)
     scheduler.add_job(temperature_keeping_task, 'cron', minute='*/15', misfire_grace_time=120, coalesce=True)
+    scheduler.add_job(db_rollover, 'cron', second=45, minute=59, hour=23)
 
     scheduler.start()
 
-    app.run(use_reloader=False, debug=True, host='0.0.0.0')
+    try:
+        app.run(use_reloader=False, debug=True, host='0.0.0.0')
+    except FlaskStopException:
+        log.info("End of Flask app")
+
+    log.info("End of Program")
+
