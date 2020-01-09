@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from honeywell_dt200 import gpio_init, change_states
+from honeywell_dt200 import gpio_init, change_states, rotate_rotary_encoder
 import threading
 import sys
 import urllib.request
@@ -13,6 +13,7 @@ from database import ThermostatDatabase
 import os
 import signal
 import datetime
+import time
 
 
 log = None
@@ -21,7 +22,7 @@ app = Flask(__name__)
 lock = threading.Lock()
 thermostat_db = None
 
-OFF_TEMPERATURE = 10.0
+OFF_TEMPERATURE = 5.0
 ON_TEMPERATURE = 25.0
 
 OUT_PIPE_TEMPERATURE_LIMIT = 33.0
@@ -228,6 +229,13 @@ def db_open():
 def db_rollover():
     thermostat_db.rollover()
 
+'''
+def thermostat_recovery():
+    with lock:
+        if not states[LIVING_ROOM][BOILER]:
+            rotate_rotary_encoder(-40)
+            time.sleep(6.0)
+'''
 
 if __name__ == '__main__':
     states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
@@ -254,7 +262,9 @@ if __name__ == '__main__':
     scheduler.add_job(update_sensor_states,     'cron', second= 0, minute='*',    misfire_grace_time=15, coalesce=True)
     scheduler.add_job(db_update,                'cron', second=10, minute='*',    misfire_grace_time=15, coalesce=True)
     scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
-    scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23)
+    scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
+
+    # scheduler.add_job(thermostat_recovery,      'cron', second=45, minute=1, hour='*', coalesce=True)
 
     scheduler.start()
 
