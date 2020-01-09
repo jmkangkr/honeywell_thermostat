@@ -231,6 +231,7 @@ def db_rollover():
 
 '''
 def thermostat_recovery():
+    log.info("Proactive honeywell living room thermostat recovery")
     with lock:
         if not states[LIVING_ROOM][BOILER]:
             rotate_rotary_encoder(-40)
