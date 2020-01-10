@@ -60,6 +60,8 @@ sensor_map = {
 }
 
 
+temperature_servers = ("http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000")
+#temperature_servers = ("http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000", "http://livingroom3-rpi:5000", "http://computerroom-rpi:5000")
 
 class FlaskStopException(Exception):
     pass
@@ -89,7 +91,7 @@ def update_sensor_states():
     with lock:
         last_temperatures_and_humidities = {}
 
-        for url in ["http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000"]:
+        for url in temperature_servers:
             temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
             last_temperatures_and_humidities.update(temperature_and_humidity)
 
