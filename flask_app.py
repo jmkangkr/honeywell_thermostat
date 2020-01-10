@@ -226,17 +226,31 @@ def db_open():
     thermostat_db.open()
 
 
+def delete_old_db_files(days_before):
+    db_file_directory_name = 'db'
+    db_file_name = 'thermostat'
+    db_file_ext = '.db'
+    db_file_path = os.path.join(db_file_directory_name, db_file_name + db_file_ext)
+
+    files_in_db_dir = os.listdir("db_file_directory_name")
+
+    for file in files_in_db_dir:
+        log.info(file)
+        #dst = os.path.join(db_file_directory_name, '{file_name:}_{date:}{file_ext:}'.format(file_name=db_file_name, date=datetime.datetime.now().strftime('%Y-%m-%d'), file_ext=db_file_ext))
+
+
 def db_rollover():
     thermostat_db.rollover()
+    delete_old_db_files(14)
 
-'''
+
 def thermostat_recovery():
-    log.info("Proactive honeywell living room thermostat recovery")
+    log.info("Prevent possible out of sync of living room state")
     with lock:
         if not states[LIVING_ROOM][BOILER]:
             rotate_rotary_encoder(-40)
             time.sleep(6.0)
-'''
+
 
 if __name__ == '__main__':
     states[LIVING_ROOM][BOILER] = True if sys.argv[1].lower() == 't' else False
@@ -265,7 +279,7 @@ if __name__ == '__main__':
     scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
     scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
 
-    # scheduler.add_job(thermostat_recovery,      'cron', second=45, minute=1, hour='*', coalesce=True)
+    scheduler.add_job(thermostat_recovery,      'cron', second=45, minute=1, hour='*', coalesce=True)
 
     scheduler.start()
 
