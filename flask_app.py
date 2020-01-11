@@ -3,6 +3,7 @@ from honeywell_dt200 import gpio_init, change_states, rotate_rotary_encoder
 import threading
 import sys
 import urllib.request
+import urllib.error
 import json
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -60,8 +61,8 @@ sensor_map = {
 }
 
 
-temperature_servers = ("http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000")
-#temperature_servers = ("http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000", "http://livingroom3-rpi:5000", "http://computerroom-rpi:5000")
+temperature_servers = ("http://boiler-rpi:5000", "http://bedroom-rpi:5000", "http://hansroom-rpi:5000", "http://livingroom3-rpi:5000", "http://computerroom-rpi:5000")
+
 
 class FlaskStopException(Exception):
     pass
@@ -92,10 +93,16 @@ def update_sensor_states():
         last_temperatures_and_humidities = {}
 
         for url in temperature_servers:
-            temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-            last_temperatures_and_humidities.update(temperature_and_humidity)
+            try:
+                temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+                last_temperatures_and_humidities.update(temperature_and_humidity)
+            except urllib.error.URLError:
+                log.error("Temperature server does not exist: {}".format(url))
 
-        last_temperatures_and_humidities.update({'LIVING_ROOM_SENSOR': [20.0, 0.0], 'COMPUTER_ROOM_SENSOR': [20.0, 0.0]})
+        for room in ROOMS:
+            if not room in last_temperatures_and_humidities:
+                log.info("{} - Set pseudo temperature to 20")
+                last_temperatures_and_humidities.update({room: [20.0, 0.0]})
 
         log.info('Sensor data\n' + str(last_temperatures_and_humidities))
 
