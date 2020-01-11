@@ -26,7 +26,7 @@ thermostat_db = None
 OFF_TEMPERATURE = 5.0
 ON_TEMPERATURE = 25.0
 
-OUT_PIPE_TEMPERATURE_LIMIT = 33.0
+OUT_PIPE_TEMPERATURE_LIMIT = 32.0
 
 LIVING_ROOM     = 'LIVING_ROOM'
 BED_ROOM        = 'BED_ROOM'
@@ -166,10 +166,10 @@ def temperature_keeping_task():
         current = states[room][CURRENT][0]
         out = states[room][OUT_PIPE][0]
         log.info("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
-        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT:
+        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT + (current - 20):
             log.info("Should be ON")
             new_onoffs[room] = True
-        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT:
+        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT + (current - 20):
             log.info("Should be OFF")
             new_onoffs[room] = False
         else:
