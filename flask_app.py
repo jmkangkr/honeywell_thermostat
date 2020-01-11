@@ -102,7 +102,7 @@ def update_sensor_states():
         for room in ROOMS:
             if not room in last_temperatures_and_humidities:
                 log.info("{} - Set pseudo temperature to 20")
-                last_temperatures_and_humidities.update({room: [20.0, 0.0]})
+                last_temperatures_and_humidities.update({room + '_SENSOR': [20.0, 0.0]})
 
         log.info('Sensor data\n' + str(last_temperatures_and_humidities))
 
