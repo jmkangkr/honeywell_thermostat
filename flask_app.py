@@ -94,7 +94,7 @@ def update_sensor_states():
 
         for url in temperature_servers:
             try:
-                temperature_and_humidity = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+                temperature_and_humidity = json.loads(urllib.request.urlopen(url, timeout=3).read().decode('utf-8'))
                 last_temperatures_and_humidities.update(temperature_and_humidity)
             except urllib.error.URLError:
                 log.error("Temperature server does not exist: {}".format(url))
