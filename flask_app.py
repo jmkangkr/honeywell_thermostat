@@ -28,6 +28,8 @@ ON_TEMPERATURE = 25.0
 
 OUT_PIPE_TEMPERATURE_LIMIT = 32.0
 
+OUT_PIPE_FAILURE_TEMPERATURE = 5.0
+
 LIVING_ROOM     = 'LIVING_ROOM'
 BED_ROOM        = 'BED_ROOM'
 COMPUTER_ROOM   = 'COMPUTER_ROOM'
@@ -106,7 +108,7 @@ def update_sensor_states():
 
             if not sensor_map[room][OUT_PIPE] in last_temperatures_and_humidities:
                 log.info("{} - Set pseudo boiler temperature to 5".format(sensor_map[room][OUT_PIPE]))
-                last_temperatures_and_humidities.update({sensor_map[room][OUT_PIPE]: [ 5.0, 0.0]})
+                last_temperatures_and_humidities.update({sensor_map[room][OUT_PIPE]: [OUT_PIPE_FAILURE_TEMPERATURE, 0.0]})
 
         log.info('Sensor data\n' + str(last_temperatures_and_humidities))
 
@@ -214,6 +216,7 @@ def listen_to_apscheduler(event):
     global scheduler
 
     if event.code == EVENT_JOB_ERROR:
+        log.exception(event.exception)
         scheduler.shutdown(wait=True)
         scheduler = None
 
