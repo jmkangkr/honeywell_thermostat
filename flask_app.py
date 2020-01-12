@@ -41,16 +41,16 @@ TARGET      = 0
 CURRENT     = 1
 OUT_PIPE    = 2
 BOILER      = 3
-
+LAST_TIME_BOILER_ONOFF = 4
 
 last_temperatures_and_humidities = None
 
 states = {
-    # ROOM          TARGET              CURRENT     OUT PIPE    BOILER
-    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
-    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
-    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
-    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True],
+    # ROOM          TARGET              CURRENT     OUT PIPE    BOILER LAST_TIME_BOILER_ONOFF
+    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
+    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
+    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
+    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
 }
 
 
@@ -130,7 +130,10 @@ def update_boilers(new_onoffs):
 
     with lock:
         for room in ROOMS:
+            if states[room][BOILER] != new_onoffs[room]:
+                states[room][BOILER] = datetime.datetime.now()
             states[room][BOILER] = new_onoffs[room]
+
 
 
 def send_state_changes(old_onoffs, new_onoffs):
