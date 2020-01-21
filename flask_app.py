@@ -175,11 +175,11 @@ def temperature_keeping_task():
         current = states[room][CURRENT][0]
         out = states[room][OUT_PIPE][0]
         log.info("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
-        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT + (current - 20):
-            log.info("Should be ON")
+        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT + (target - 20):
+            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target, out))
             new_onoffs[room] = True
-        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT + (current - 20):
-            log.info("Should be OFF")
+        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT + (target - 20):
+            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target, out))
             new_onoffs[room] = False
         else:
             raise AssertionError("Can't happen")
@@ -251,7 +251,7 @@ def delete_old_db_files(days_before):
     db_file_ext = '.db'
     db_file_path = os.path.join(db_file_directory_name, db_file_name + db_file_ext)
 
-    files_in_db_dir = os.listdir("db_file_directory_name")
+    files_in_db_dir = os.listdir(db_file_directory_name)
 
     for file in files_in_db_dir:
         log.info(file)
