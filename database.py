@@ -39,15 +39,34 @@ class ThermostatDatabase:
             self._logger.info(traceback.format_exc())
             raise e
 
-    def _create_table_if_not_exists(self, sensor_name):
-        self._cur.execute('''CREATE TABLE IF NOT EXISTS {}(date TEXT PRIMARY KEY NOT NULL, temperature REAL, humidity REAL)'''.format(sensor_name))
+    def _create_table_if_not_exists(self, room_name):
+        self._cur.execute('''CREATE TABLE IF NOT EXISTS {room_name:}(date                   TEXT PRIMARY KEY NOT NULL, \
+                                                                     current_temperature    REAL, \
+                                                                     current_humidity       REAL, \
+                                                                     current_pipe_in        REAL, \
+                                                                     current_pipe_out       REAL, \
+                                                                     target_temperature     REAL, \
+                                                                     boiler_state           INTEGER)'''.format(room_name=room_name))
 
-    def insert_sensor_data(self, t, sensor_name, temperature, humidity):
-        command = '''INSERT INTO {sensor_name:} VALUES ('{time:}', {temperature:}, {humidity:})'''.format(sensor_name=sensor_name, time=t.strftime('%Y-%m-%d %H:%M:%S'), temperature=temperature if temperature is not None else "NULL", humidity=humidity if humidity is not None else "NULL")
+    def insert_sensor_data(self, room_name, t, current_temperature, current_humidity, current_pipe_in, current_pipe_out, target_temperature, boiler_state):
+        command = '''INSERT INTO {room_name:} VALUES ('{time:}', \
+                                                      {current_temperature:}, \
+                                                      {current_humidity:}, \
+                                                      {current_pipe_in}, \
+                                                      {current_pipe_out}, \
+                                                      {target_temperature}, \
+                                                      {boiler_state})'''.format(room_name=room_name,
+                                                                                time=t.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                                current_temperature=current_temperature if current_temperature is not None else "NULL",
+                                                                                current_humidity=current_humidity if current_humidity is not None else "NULL",
+                                                                                current_pipe_in=current_pipe_in if current_pipe_in is not None else "NULL",
+                                                                                current_pipe_out=current_pipe_out if current_pipe_out is not None else "NULL",
+                                                                                target_temperature=target_temperature if target_temperature is not None else "NULL",
+                                                                                boiler_state=boiler_state if boiler_state is not None else "NULL")
         try:
             self._execute_sql_command(command)
         except sqlite3.OperationalError as e:
-            self._create_table_if_not_exists(sensor_name)
+            self._create_table_if_not_exists(room_name)
             self._execute_sql_command(command)
 
     def rollover(self):

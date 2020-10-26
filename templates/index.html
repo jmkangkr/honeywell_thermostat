@@ -39,40 +39,40 @@
                 }
             </script>
             <div class="temperature">
-                <label for="LIVING_ROOM_TARGET_SELECTOR">Living Room ({{LIVING_ROOM[1][0]|round(1, 'common')}}/{{LIVING_ROOM[3]}}/{{LIVING_ROOM[2][0]|round(1, 'common')}})</label>
-                <select id="LIVING_ROOM_TARGET_SELECTOR" name="LIVING_ROOM_TARGET">
+                <label for="ROOM_LIVING_TARGET_SELECTOR">Living Room ({{ROOM_LIVING[STATE_TEMPERATURE]|round(1, 'common')}}/{{ROOM_LIVING[STATE_BOILER]}}/{{ROOM_LIVING[STATE_PIPE_OUT]|round(1, 'common')}})</label>
+                <select id="ROOM_LIVING_TARGET_SELECTOR" name="ROOM_LIVING_TARGET">
                     <script>
-                        createOptionWithValues("LIVING_ROOM_TARGET", {{LIVING_ROOM[0]}});
+                        createOptionWithValues("ROOM_LIVING_TARGET", {{ROOM_LIVING[STATE_TARGET]}});
                     </script>
                 </select>
-                <input type="checkbox" name="LIVING_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="ROOM_LIVING_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="BED_ROOM_TARGET_SELECTOR">Bedroom ({{BED_ROOM[1][0]|round(1, 'common')}}/{{BED_ROOM[3]}}/{{BED_ROOM[2][0]|round(1, 'common')}})</label>
-                <select id="BED_ROOM_TARGET_SELECTOR" name="BED_ROOM_TARGET">
+                <label for="ROOM_BED_TARGET_SELECTOR">Bedroom ({{ROOM_BED[STATE_TEMPERATURE]|round(1, 'common')}}/{{ROOM_BED[STATE_BOILER]}}/{{ROOM_BED[STATE_PIPE_OUT]|round(1, 'common')}})</label>
+                <select id="ROOM_BED_TARGET_SELECTOR" name="ROOM_BED_TARGET">
                     <script>
-                        createOptionWithValues("BED_ROOM_TARGET", {{BED_ROOM[0]}});
+                        createOptionWithValues("ROOM_BED_TARGET", {{ROOM_BED[0]}});
                     </script>
                 </select>
-                <input type="checkbox" name="BED_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="ROOM_BED_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="COMPUTER_ROOM_TARGET_SELECTOR">Lab13485 ({{COMPUTER_ROOM[1][0]|round(1, 'common')}}/{{COMPUTER_ROOM[3]}}/{{COMPUTER_ROOM[2][0]|round(1, 'common')}})</label>
-                <select id="COMPUTER_ROOM_TARGET_SELECTOR" name="COMPUTER_ROOM_TARGET">
+                <label for="ROOM_COMPUTER_TARGET_SELECTOR">Lab13485 ({{ROOM_COMPUTER[STATE_TEMPERATURE]|round(1, 'common')}}/{{ROOM_COMPUTER[STATE_BOILER]}}/{{ROOM_COMPUTER[STATE_PIPE_OUT]|round(1, 'common')}})</label>
+                <select id="ROOM_COMPUTER_TARGET_SELECTOR" name="ROOM_COMPUTER_TARGET">
                     <script>
-                        createOptionWithValues("COMPUTER_ROOM_TARGET", {{COMPUTER_ROOM[0]}});
+                        createOptionWithValues("ROOM_COMPUTER_TARGET", {{ROOM_COMPUTER[STATE_TARGET]}});
                     </script>
                 </select>
-                <input type="checkbox" name="COMPUTER_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="ROOM_COMPUTER_AUTO_OFF">Auto-off
             </div>
             <div class="temperature">
-                <label for="HANS_ROOM_TARGET_SELECTOR">Han's Room ({{HANS_ROOM[1][0]|round(1, 'common')}}/{{HANS_ROOM[3]}}/{{HANS_ROOM[2][0]|round(1, 'common')}})</label>
-                <select id="HANS_ROOM_TARGET_SELECTOR" name="HANS_ROOM_TARGET">
+                <label for="ROOM_HANS_TARGET_SELECTOR">Han's Room ({{ROOM_HANS[STATE_TEMPERATURE]|round(1, 'common')}}/{{ROOM_HANS[STATE_BOILER]}}/{{ROOM_HANS[STATE_PIPE_OUT]|round(1, 'common')}})</label>
+                <select id="ROOM_HANS_TARGET_SELECTOR" name="ROOM_HANS_TARGET">
                     <script>
-                        createOptionWithValues("HANS_ROOM_TARGET", {{HANS_ROOM[0]}});
+                        createOptionWithValues("ROOM_HANS_TARGET", {{ROOM_HANS[STATE_TARGET]}});
                     </script>
                 </select>
-                <input type="checkbox" name="HANS_ROOM_AUTO_OFF">Auto-off
+                <input type="checkbox" name="ROOM_HANS_AUTO_OFF">Auto-off
             </div>
         </div>
 
