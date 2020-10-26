@@ -152,19 +152,21 @@ def read_temperatures():
     global thermostat_states
 
     def read_temperature(room, url):
-        return room, requests.get(url, timeout=5).json()
+        try:
+            resp = requests.get(url, timeout=5).json()
+        except Exception as exc:
+            log.critical(f"Can't get data from server {room}:\n {exc}")
+            resp = None
+        return room, resp
 
     temperatures = {}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = (executor.submit(read_temperature, room, url) for room, url in temperature_servers.items())
         for idx, future in enumerate(concurrent.futures.as_completed(futures)):
-            try:
-                room, result = future.result()
-            except Exception as exc:
-                log.critical(f"Can't get data from server {room}:\n {exc}")
-
-            temperatures[room] = result
+            room, result = future.result()
+            if result is not None:
+                temperatures[room] = result
 
     log.info(pformat(temperatures))
 
