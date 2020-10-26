@@ -139,12 +139,6 @@ def db_update():
                                              thermostat_states[room][STATE_TEMPERATURE],
                                              thermostat_states[room][STATE_BOILER])
 
-"""
-def db_update():
-    global last_temperatures_and_humidities
-    for sensor_name, (temperature, humidity) in last_temperatures_and_humidities.items():
-        thermostat_db.insert_sensor_data(datetime.datetime.now(), sensor_name, temperature, humidity)
-"""
 
 def read_temperatures():
     log.info("TASK - Updating sensor data")
@@ -153,7 +147,7 @@ def read_temperatures():
 
     def read_temperature(room, url):
         try:
-            resp = requests.get(url, timeout=5).json()
+            resp = requests.get(url, timeout=15).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
@@ -187,6 +181,10 @@ def read_temperatures():
             thermostat_states[room][STATE_DATA_MISSING_COUNT] += 1
 
     log.info(pformat(thermostat_states))
+
+    db_update()
+
+    temperature_keeping_task()
 
 """
 def update_sensor_states():
@@ -307,31 +305,6 @@ def temperature_keeping_task():
 
     update_boilers(new_boiler_states)
 
-"""
-def temperature_keeping_task2():
-    log.info("TASK - Temperature Keeping Task")
-
-    new_onoffs = {}
-    for room in ROOMS:
-        target = states[room][TARGET]
-        current = states[room][CURRENT][0]
-        out = states[room][OUT_PIPE][0]
-        log.info("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target, out))
-        if current < target and out < OUT_PIPE_TEMPERATURE_LIMIT + (target - 20):
-            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target, out))
-            new_onoffs[room] = True
-        elif current >= target or out >= OUT_PIPE_TEMPERATURE_LIMIT + (target - 20):
-            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target, out))
-            new_onoffs[room] = False
-        else:
-            raise AssertionError("Can't happen")
-
-    send_state_changes([states[room][BOILER] for room in ROOMS],
-                       [new_onoffs[room] for room in ROOMS])
-
-    update_boilers(new_onoffs)
-"""
-
 
 def setup_logger(logger_name, log_dir_name, log_file_name):
     logger = logging.getLogger(logger_name)
@@ -432,13 +405,13 @@ if __name__ == '__main__':
     # Initial update
     scheduler.add_job(db_open)
     scheduler.add_job(read_temperatures)
-    scheduler.add_job(temperature_keeping_task)
+    #scheduler.add_job(temperature_keeping_task)
 
     scheduler.add_job(db_close, next_run_time=None, id='db_close', misfire_grace_time=None)
 
     scheduler.add_job(read_temperatures,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
-    scheduler.add_job(db_update,                'cron', second=10, minute='*', misfire_grace_time=15, coalesce=True)
-    scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
+    #scheduler.add_job(db_update,                'cron', second=10, minute='*', misfire_grace_time=15, coalesce=True)
+    #scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
     scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
 
     scheduler.add_job(thermostat_recovery,      'cron', second=45, minute=1, hour='*', coalesce=True)
