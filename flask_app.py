@@ -86,34 +86,6 @@ lock = threading.Lock()
 thermostat_db = None
 
 
-"""
-TARGET      = 0
-CURRENT     = 1
-OUT_PIPE    = 2
-BOILER      = 3
-LAST_TIME_BOILER_ONOFF = 4
-
-last_temperatures_and_humidities = None
-
-states = {
-    # ROOM          TARGET              CURRENT     OUT PIPE    BOILER LAST_TIME_BOILER_ONOFF
-    LIVING_ROOM  : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
-    BED_ROOM     : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
-    COMPUTER_ROOM: [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
-    HANS_ROOM    : [OFF_TEMPERATURE,    (0.0, 0.0), (0.0, 0.0), True,  datetime.datetime(1970, 1, 1, 9, 0)],
-}
-
-
-sensor_map = {
-    # ROOM          TARGET                  CURRENT                 OUT_PIPE
-    LIVING_ROOM  : ['LIVING_ROOM_TARGET',   'LIVING_ROOM_SENSOR',   'OUT_LIVING_ROOM0_SENSOR',  ],
-    BED_ROOM     : ['BED_ROOM_TARGET',      'BED_ROOM_SENSOR',      'OUT_BED_ROOM_SENSOR',      ],
-    COMPUTER_ROOM: ['COMPUTER_ROOM_TARGET', 'COMPUTER_ROOM_SENSOR', 'OUT_COMPUTER_ROOM_SENSOR', ],
-    HANS_ROOM    : ['HANS_ROOM_TARGET',     'HANS_ROOM_SENSOR',     'OUT_HANS_ROOM_SENSOR',     ],
-}
-"""
-
-
 class FlaskStopException(Exception):
     pass
 
@@ -147,7 +119,7 @@ def read_temperatures():
 
     def read_temperature(room, url):
         try:
-            resp = requests.get(url, timeout=15).json()
+            resp = requests.get(url, timeout=23).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
@@ -186,38 +158,6 @@ def read_temperatures():
 
     temperature_keeping_task()
 
-"""
-def update_sensor_states():
-    log.info("TASK - Updating sensor data")
-
-    global states
-    global last_temperatures_and_humidities
-
-    with lock:
-        last_temperatures_and_humidities = {}
-
-        for url in temperature_servers:
-            try:
-                temperature_and_humidity = json.loads(urllib.request.urlopen(url, timeout=3).read().decode('utf-8'))
-                last_temperatures_and_humidities.update(temperature_and_humidity)
-            except urllib.error.URLError:
-                log.error("Temperature server does not exist: {}".format(url))
-
-        for room in ROOMS:
-            if not sensor_map[room][CURRENT] in last_temperatures_and_humidities:
-                log.info("{} - Set pseudo room temperature to 20".format(sensor_map[room][CURRENT]))
-                last_temperatures_and_humidities.update({sensor_map[room][CURRENT]: [20.0, 0.0]})
-
-            if not sensor_map[room][OUT_PIPE] in last_temperatures_and_humidities:
-                log.info("{} - Set pseudo boiler temperature to 5".format(sensor_map[room][OUT_PIPE]))
-                last_temperatures_and_humidities.update({sensor_map[room][OUT_PIPE]: [OUT_PIPE_FAILURE_TEMPERATURE, 0.0]})
-
-        log.info('Sensor data\n' + str(last_temperatures_and_humidities))
-
-        for room in ROOMS:
-            states[room][CURRENT]   = last_temperatures_and_humidities[sensor_map[room][CURRENT]]
-            states[room][OUT_PIPE]  = last_temperatures_and_humidities[sensor_map[room][OUT_PIPE]]
-"""
 
 def update_targets(new_targets):
     global thermostat_states
