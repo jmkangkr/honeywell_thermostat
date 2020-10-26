@@ -247,7 +247,7 @@ def send_state_changes(old_onoffs, new_onoffs):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', **states)
+    return render_template('index.html', **thermostat_states)
 
 
 @app.route('/apply', methods=['POST', 'GET'])
