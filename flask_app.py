@@ -43,10 +43,10 @@ STATE_DATA_MISSING_COUNT = "STATE_DATA_MISSING_COUNT"
 # The order has a dependency to index.html
 default_room_state = {
     STATE_DTIME:                datetime.datetime(1970, 1, 1, 9, 0),
-    STATE_TEMPERATURE:          0.0,
-    STATE_HUMIDITY:             0.0,
-    STATE_PIPE_IN:              0.0,
-    STATE_PIPE_OUT:             0.0,
+    STATE_TEMPERATURE:          20.0,
+    STATE_HUMIDITY:             50.0,
+    STATE_PIPE_IN:              28.0,
+    STATE_PIPE_OUT:             20.0,
     STATE_TARGET:               THERMOSTAT_OFF_TEMPERATURE,
     STATE_BOILER:               False,
     STATE_DATA_MISSING_COUNT:   0
