@@ -37,6 +37,7 @@ STATE_PIPE_IN = "STATE_PIPE_IN"
 STATE_PIPE_OUT = "STATE_PIPE_OUT"
 STATE_TARGET = "STATE_TARGET"
 STATE_BOILER = "STATE_BOILER"
+STATE_TIME_BOILER_CHANGE = "STATE_TIME_BOILER_CHANGE"
 STATE_DATA_MISSING_COUNT = "STATE_DATA_MISSING_COUNT"
 
 
@@ -49,7 +50,8 @@ default_room_state = {
     STATE_PIPE_OUT:             20.0,
     STATE_TARGET:               THERMOSTAT_OFF_TEMPERATURE,
     STATE_BOILER:               False,
-    STATE_DATA_MISSING_COUNT:   0
+    STATE_TIME_BOILER_CHANGE:   datetime.datetime(1970, 1, 1, 9, 0),
+    STATE_DATA_MISSING_COUNT:   999999
 }
 
 
@@ -99,6 +101,11 @@ def signal_handler(sig, frame):
         raise FlaskStopException()
 
 
+def initial_read_temperatures():
+    while not all(thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0 for room in ROOMS):
+        read_temperatures()
+
+
 def db_update():
     for room in ROOMS:
         if thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0:
@@ -111,13 +118,17 @@ def db_update():
                                              thermostat_states[room][STATE_TEMPERATURE],
                                              thermostat_states[room][STATE_BOILER])
 
+def periodic_task():
+    read_temperatures()
+    db_update()
+    temperature_keeping_task()
 
 def read_temperatures():
     log.info("TASK - Updating sensor data")
 
     global thermostat_states
 
-    def read_temperature(room, url):
+    def fetch_temperature(room, url):
         try:
             resp = requests.get(url, timeout=23).json()
         except Exception as exc:
@@ -128,7 +139,7 @@ def read_temperatures():
     temperatures = {}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = (executor.submit(read_temperature, room, url) for room, url in temperature_servers.items())
+        futures = (executor.submit(fetch_temperature, room, url) for room, url in temperature_servers.items())
         for idx, future in enumerate(concurrent.futures.as_completed(futures)):
             room, result = future.result()
             if result is not None:
@@ -154,10 +165,6 @@ def read_temperatures():
 
     log.info(pformat(thermostat_states))
 
-    db_update()
-
-    temperature_keeping_task()
-
 
 def update_targets(new_targets):
     global thermostat_states
@@ -174,7 +181,8 @@ def update_boilers(new_onoffs):
         for room in ROOMS:
             if thermostat_states[room][STATE_BOILER] != new_onoffs[room]:
                 log.info(f"{room}: state changed from {thermostat_states[room][STATE_BOILER]} to {new_onoffs[room]}")
-            thermostat_states[room][STATE_BOILER] = new_onoffs[room]
+                thermostat_states[room][STATE_TIME_BOILER_CHANGE] = datetime.datetime.now()
+                thermostat_states[room][STATE_BOILER] = new_onoffs[room]
 
 
 
@@ -342,19 +350,15 @@ if __name__ == '__main__':
 
     scheduler.add_listener(listen_to_apscheduler)
 
+    initial_read_temperatures()
+
     # Initial update
     scheduler.add_job(db_open)
-    scheduler.add_job(read_temperatures)
-    #scheduler.add_job(temperature_keeping_task)
-
     scheduler.add_job(db_close, next_run_time=None, id='db_close', misfire_grace_time=None)
 
-    scheduler.add_job(read_temperatures,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
-    #scheduler.add_job(db_update,                'cron', second=10, minute='*', misfire_grace_time=15, coalesce=True)
-    #scheduler.add_job(temperature_keeping_task, 'cron', second=20, minute='*/15', misfire_grace_time=120, coalesce=True)
-    scheduler.add_job(db_rollover,              'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
-
-    scheduler.add_job(thermostat_recovery,      'cron', second=45, minute=1, hour='*', coalesce=True)
+    scheduler.add_job(periodic_task,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
+    scheduler.add_job(db_rollover,          'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
+    scheduler.add_job(thermostat_recovery,  'cron', second=45, minute=1, hour='*', coalesce=True)
 
     scheduler.start()
 
