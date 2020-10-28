@@ -171,7 +171,7 @@ def read_temperatures():
             thermostat_states[room][STATE_DATA_MISSING_COUNT] += 1
             max_data_missing = max(max_data_missing, thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
-    log.info(pformat(thermostat_states))
+    #max_data_missing = max(max_data_missing, *[thermostat_states[r][STATE_DATA_MISSING_COUNT] for r in ROOMS])
     log.info("Max data missing: " + str(max_data_missing) + " " + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
 
 
