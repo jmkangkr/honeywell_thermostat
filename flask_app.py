@@ -243,9 +243,8 @@ def temperature_keeping_task():
         boiler_state = thermostat_states[room][STATE_BOILER]
         target_base = thermostat_states[room][STATE_TARGET]
         target_high = target_base + TARGET_HIGH_MARGIN
-
+        data_missing = thermostat_states[room][STATE_DATA_MISSING_COUNT]
         current = thermostat_states[room][STATE_TEMPERATURE]
-
         pipe_out = thermostat_states[room][STATE_PIPE_OUT]
 
         time_passed_after_boiler_state_change = datetime.datetime.now() - thermostat_states[room][STATE_TIME_BOILER_CHANGE]
@@ -262,7 +261,8 @@ def temperature_keeping_task():
         elif not boiler_state and \
              (pipe_out < PIPE_OUT_LOW_LIMIT and
              current < target_base and
-             time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY):
+             time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY and
+             data_missing == 0):
             # Turn on boiler
             log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, time_passed_after_boiler_state_change))
             new_boiler_states[room] = True
