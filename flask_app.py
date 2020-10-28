@@ -106,6 +106,7 @@ def signal_handler(sig, frame):
 def initial_read_temperatures():
     while not all(thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0 for room in ROOMS):
         read_temperatures()
+        time.sleep(30)
 
 
 def db_update():
