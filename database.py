@@ -46,23 +46,26 @@ class ThermostatDatabase:
                                                                      current_pipe_in        REAL, \
                                                                      current_pipe_out       REAL, \
                                                                      target_temperature     REAL, \
-                                                                     boiler_state           INTEGER)'''.format(room_name=room_name))
+                                                                     boiler_state           INTEGER \
+                                                                     data_missing           INTEGER NOT NULL)'''.format(room_name=room_name))
 
-    def insert_sensor_data(self, room_name, t, current_temperature, current_humidity, current_pipe_in, current_pipe_out, target_temperature, boiler_state):
+    def insert_sensor_data(self, room_name, t, current_temperature, current_humidity, current_pipe_in, current_pipe_out, target_temperature, boiler_state, data_missing):
         command = '''INSERT INTO {room_name:} VALUES ('{time:}', \
                                                       {current_temperature:}, \
                                                       {current_humidity:}, \
                                                       {current_pipe_in}, \
                                                       {current_pipe_out}, \
                                                       {target_temperature}, \
-                                                      {boiler_state})'''.format(room_name=room_name,
+                                                      {boiler_state}, 
+                                                      {data_missing})'''.format(room_name=room_name,
                                                                                 time=t.strftime('%Y-%m-%d %H:%M:%S'),
                                                                                 current_temperature=current_temperature if current_temperature is not None else "NULL",
                                                                                 current_humidity=current_humidity if current_humidity is not None else "NULL",
                                                                                 current_pipe_in=current_pipe_in if current_pipe_in is not None else "NULL",
                                                                                 current_pipe_out=current_pipe_out if current_pipe_out is not None else "NULL",
                                                                                 target_temperature=target_temperature if target_temperature is not None else "NULL",
-                                                                                boiler_state=boiler_state if boiler_state is not None else "NULL")
+                                                                                boiler_state=boiler_state if boiler_state is not None else "NULL",
+                                                                                data_missing=data_missing)
         try:
             self._execute_sql_command(command)
         except sqlite3.OperationalError as e:

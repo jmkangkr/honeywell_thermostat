@@ -111,7 +111,7 @@ def initial_read_temperatures():
 
 def db_update():
     for room in ROOMS:
-        if thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0:
+        #if thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0:
             thermostat_db.insert_sensor_data(room,
                                              thermostat_states[room][STATE_DTIME],
                                              thermostat_states[room][STATE_TEMPERATURE],
@@ -119,7 +119,8 @@ def db_update():
                                              thermostat_states[room][STATE_PIPE_IN],
                                              thermostat_states[room][STATE_PIPE_OUT],
                                              thermostat_states[room][STATE_TEMPERATURE],
-                                             thermostat_states[room][STATE_BOILER])
+                                             thermostat_states[room][STATE_BOILER],
+                                             thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
 def periodic_task():
     read_temperatures()
@@ -233,9 +234,13 @@ def temperature_keeping_task():
 
     TARGET_HIGH_MARGIN = 0.5
 
+    BOILER_STATE_CHANGE_DELAY = datetime.timedelta(minutes=5)
+    MAX_BOILER_ON_TIME = datetime.timedelta(minutes=12)
+
     new_boiler_states = {room: thermostat_states[room][STATE_BOILER] for room in ROOMS}
 
     for room in ROOMS:
+        boiler_state = thermostat_states[room][STATE_BOILER]
         target_base = thermostat_states[room][STATE_TARGET]
         target_high = target_base + TARGET_HIGH_MARGIN
 
@@ -243,15 +248,23 @@ def temperature_keeping_task():
 
         pipe_out = thermostat_states[room][STATE_PIPE_OUT]
 
-        log.info("=== {} {:.2f}/{:.2f} | {:.2f}".format(room, current, target_base, pipe_out))
+        time_passed_after_boiler_state_change = datetime.datetime.now() - thermostat_states[room][STATE_TIME_BOILER_CHANGE]
 
-        if pipe_out >= PIPE_OUT_HIGH_LIMIT or current >= target_high:
+        log.info("=== {} {:.2f}/{:.2f} | {:.2f} | {}".format(room, current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
+
+        if boiler_state and \
+           (pipe_out >= PIPE_OUT_HIGH_LIMIT or
+           current >= target_high or
+           time_passed_after_boiler_state_change >= MAX_BOILER_ON_TIME):
             # Turn off boiler
-            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target_base, pipe_out))
+            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
             new_boiler_states[room] = False
-        elif pipe_out < PIPE_OUT_LOW_LIMIT and current < target_base:
+        elif not boiler_state and \
+             (pipe_out < PIPE_OUT_LOW_LIMIT and
+             current < target_base and
+             time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY):
             # Turn on boiler
-            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f})".format(current, target_base, pipe_out))
+            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
             new_boiler_states[room] = True
             pass
 
