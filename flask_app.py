@@ -104,9 +104,10 @@ def signal_handler(sig, frame):
 
 
 def initial_read_temperatures():
+    read_temperatures()
     while not all(thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0 for room in ROOMS):
-        read_temperatures()
         time.sleep(30)
+        read_temperatures()
 
 
 def db_update():
@@ -245,11 +246,13 @@ def temperature_keeping_task():
         target_high = target_base + TARGET_HIGH_MARGIN
         data_missing = thermostat_states[room][STATE_DATA_MISSING_COUNT]
         current = thermostat_states[room][STATE_TEMPERATURE]
+        pipe_in = thermostat_states[room][STATE_PIPE_IN]
         pipe_out = thermostat_states[room][STATE_PIPE_OUT]
 
         time_passed_after_boiler_state_change = datetime.datetime.now() - thermostat_states[room][STATE_TIME_BOILER_CHANGE]
 
-        log.info("=== {} {:.2f}/{:.2f} | {:.2f} | {}".format(room, current, target_base, pipe_out, time_passed_after_boiler_state_change))
+        log.info("=== {:14} missing({:2}) current({:5.2f}) target({:5.2f}) in({:5.2f}) out({:5.2f}) boiler({}) time({})"
+                 .format(room, data_missing, current, target_base, pipe_in, pipe_out, str(boiler_state)[:1], time_passed_after_boiler_state_change))
 
         if boiler_state and \
            (pipe_out >= PIPE_OUT_HIGH_LIMIT or
