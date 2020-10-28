@@ -94,11 +94,11 @@ def change_states(old_states, new_states):
         if room == _LIVING_ROOM:
             if new_states[index] and not old_states[index]:
                 log.info("Turning ON")
-                rotate_rotary_encoder(40)   # (ON_TEMPERATURE - OFF_TEMPERATURE) * 2
+                rotate_rotary_encoder(42)   # (THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * 2
                 time.sleep(6.0)
             elif not new_states[index] and old_states[index]:
                 log.info("Turning OFF")
-                rotate_rotary_encoder(-40)  # (ON_TEMPERATURE - OFF_TEMPERATURE) * 2
+                rotate_rotary_encoder(-42)  # (THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * 2
                 time.sleep(6.0)
         else:
             if new_states[index] and not old_states[index]:
