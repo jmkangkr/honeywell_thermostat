@@ -250,21 +250,21 @@ def temperature_keeping_task():
 
         time_passed_after_boiler_state_change = datetime.datetime.now() - thermostat_states[room][STATE_TIME_BOILER_CHANGE]
 
-        log.info("=== {} {:.2f}/{:.2f} | {:.2f} | {}".format(room, current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
+        log.info("=== {} {:.2f}/{:.2f} | {:.2f} | {}".format(room, current, target_base, pipe_out, time_passed_after_boiler_state_change))
 
         if boiler_state and \
            (pipe_out >= PIPE_OUT_HIGH_LIMIT or
            current >= target_high or
            time_passed_after_boiler_state_change >= MAX_BOILER_ON_TIME):
             # Turn off boiler
-            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
+            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, time_passed_after_boiler_state_change))
             new_boiler_states[room] = False
         elif not boiler_state and \
              (pipe_out < PIPE_OUT_LOW_LIMIT and
              current < target_base and
              time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY):
             # Turn on boiler
-            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, str(time_passed_after_boiler_state_change)))
+            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, time_passed_after_boiler_state_change))
             new_boiler_states[room] = True
             pass
 
