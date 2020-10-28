@@ -133,7 +133,7 @@ def read_temperatures():
 
     def fetch_temperature(room, url):
         try:
-            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=23).json()
+            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=33).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
@@ -169,7 +169,7 @@ def read_temperatures():
             max_data_missing = max(max_data_missing, thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
     log.info(pformat(thermostat_states))
-    log.info("Max data missing: " + str(max_data_missing) + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
+    log.info("Max data missing: " + str(max_data_missing) + " " + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
 
 
 def update_targets(new_targets):
