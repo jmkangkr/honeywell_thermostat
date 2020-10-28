@@ -46,7 +46,7 @@ class ThermostatDatabase:
                                                                      current_pipe_in        REAL, \
                                                                      current_pipe_out       REAL, \
                                                                      target_temperature     REAL, \
-                                                                     boiler_state           INTEGER \
+                                                                     boiler_state           INTEGER, \
                                                                      data_missing           INTEGER NOT NULL)'''.format(room_name=room_name))
 
     def insert_sensor_data(self, room_name, t, current_temperature, current_humidity, current_pipe_in, current_pipe_out, target_temperature, boiler_state, data_missing):
