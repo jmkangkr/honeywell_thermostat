@@ -67,8 +67,8 @@ temperature_servers = {
     PIPES_BOILER:   "http://192.168.50.32/temperature",
     ROOM_LIVING:    "http://192.168.50.34/temperature",
     ROOM_BED:       "http://192.168.50.35/temperature",
-    ROOM_HANS:      "http://192.168.50.36/temperature",
-    ROOM_COMPUTER:  "http://192.168.50.37/temperature"
+    ROOM_COMPUTER:  "http://192.168.50.36/temperature",
+    ROOM_HANS:      "http://192.168.50.37/temperature"
 }
 
 
@@ -87,6 +87,8 @@ app = Flask(__name__)
 lock = threading.Lock()
 thermostat_db = None
 
+
+max_data_missing = 0
 
 class FlaskStopException(Exception):
     pass
@@ -126,11 +128,12 @@ def periodic_task():
 def read_temperatures():
     log.info("TASK - Updating sensor data")
 
+    global max_data_missing
     global thermostat_states
 
     def fetch_temperature(room, url):
         try:
-            resp = requests.get(url, timeout=23).json()
+            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=23).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
@@ -160,10 +163,13 @@ def read_temperatures():
                 thermostat_states[room][STATE_DATA_MISSING_COUNT]   = 0
             else:
                 thermostat_states[room][STATE_DATA_MISSING_COUNT] += 1
+                max_data_missing = max(max_data_missing, thermostat_states[room][STATE_DATA_MISSING_COUNT])
         except KeyError:
             thermostat_states[room][STATE_DATA_MISSING_COUNT] += 1
+            max_data_missing = max(max_data_missing, thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
     log.info(pformat(thermostat_states))
+    log.info("Max data missing: " + str(max_data_missing) + pformat(thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS))
 
 
 def update_targets(new_targets):
@@ -351,6 +357,8 @@ if __name__ == '__main__':
     scheduler.add_listener(listen_to_apscheduler)
 
     initial_read_temperatures()
+
+    max_data_missing = 0
 
     # Initial update
     scheduler.add_job(db_open)
