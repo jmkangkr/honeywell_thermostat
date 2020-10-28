@@ -354,7 +354,7 @@ def thermostat_recovery():
     log.info("Prevent possible out of sync of living room state")
     with lock:
         if not thermostat_states[ROOM_LIVING][STATE_BOILER]:
-            rotate_rotary_encoder(-((THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * 2))
+            rotate_rotary_encoder(-42) # (THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * -2)
             time.sleep(6.0)
 
 
