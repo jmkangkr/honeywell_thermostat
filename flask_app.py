@@ -151,8 +151,6 @@ def read_temperatures():
             if result is not None:
                 temperatures[room] = result
 
-    log.info(pformat(temperatures))
-
     current_time = datetime.datetime.now()
 
     for room in ROOMS:
