@@ -249,8 +249,8 @@ def temperature_keeping_task():
 
         time_passed_after_boiler_state_change = datetime.datetime.now() - thermostat_states[room][STATE_TIME_BOILER_CHANGE]
 
-        log.info("=== {:14} missing({:2}) current({:5.2f}) target({:5.2f}) in({:5.2f}) out({:5.2f}) boiler({}) time({})"
-                 .format(room, data_missing, current, target_base, pipe_in, pipe_out, str(boiler_state)[:1], time_passed_after_boiler_state_change))
+        log.info("=== {:14} missing({:2}) current({:5.2f}) target({:5.2f}) in({:5.2f}) out({:5.2f}) boiler({}) tdelta({:.0f}min, {:.0f}sec)"
+                 .format(room, data_missing, current, target_base, pipe_in, pipe_out, str(boiler_state)[:1], *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
 
         if boiler_state and \
            (pipe_out >= PIPE_OUT_HIGH_LIMIT or
