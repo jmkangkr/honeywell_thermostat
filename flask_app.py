@@ -50,7 +50,7 @@ default_room_state = {
     STATE_PIPE_OUT:             20.0,
     STATE_TARGET:               THERMOSTAT_OFF_TEMPERATURE,
     STATE_BOILER:               False,
-    STATE_TIME_BOILER_CHANGE:   datetime.datetime(1970, 1, 1, 9, 0),
+    STATE_TIME_BOILER_CHANGE:   datetime.datetime.now() - datetime.timedelta(hours=1),
     STATE_DATA_MISSING_COUNT:   999999
 }
 
@@ -228,8 +228,8 @@ def temperature_keeping_task():
 
     global thermostat_states
 
-    PIPE_OUT_HIGH_LIMIT = 40.0
-    PIPE_OUT_LOW_LIMIT = 35.0
+    PIPE_OUT_HIGH_LIMIT = 39.0
+    PIPE_OUT_LOW_LIMIT = 34.0
 
     TARGET_HIGH_MARGIN = 0.5
 
@@ -257,15 +257,21 @@ def temperature_keeping_task():
            current >= target_high or
            time_passed_after_boiler_state_change >= MAX_BOILER_ON_TIME):
             # Turn off boiler
-            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, time_passed_after_boiler_state_change))
+            log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({:.0f}min, {:.0f}sec))".format(current, target_base, pipe_out, *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
             new_boiler_states[room] = False
+
+            if room == ROOM_LIVING:
+                log.info("Add job for prevent_possible_livingroom_out_of_sync")
+                scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'interval', seconds=30)
+                scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'interval', seconds=90)
+
         elif not boiler_state and \
              (pipe_out < PIPE_OUT_LOW_LIMIT and
              current < target_base and
              time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY and
              data_missing == 0):
             # Turn on boiler
-            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({}))".format(current, target_base, pipe_out, time_passed_after_boiler_state_change))
+            log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({:.0f}min, {:.0f}sec))".format(current, target_base, pipe_out, *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
             new_boiler_states[room] = True
             pass
 
@@ -347,11 +353,21 @@ def db_rollover():
     thermostat_db.rollover()
     delete_old_db_files(14)
 
-
+"""
 def thermostat_recovery():
     log.info("Prevent possible out of sync of living room state")
     with lock:
         if not thermostat_states[ROOM_LIVING][STATE_BOILER]:
+            rotate_rotary_encoder(-42) # (THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * -2)
+            time.sleep(6.0)
+"""
+
+
+def prevent_possible_livingroom_out_of_sync():
+    log.info("prevent_possible_livingroom_out_of_sync runs")
+    with lock:
+        if not thermostat_states[ROOM_LIVING][STATE_BOILER]:
+            log.info("decrease -42")
             rotate_rotary_encoder(-42) # (THERMOSTAT_ON_TEMPERATURE - THERMOSTAT_OFF_TEMPERATURE) * -2)
             time.sleep(6.0)
 
@@ -381,7 +397,7 @@ if __name__ == '__main__':
 
     scheduler.add_job(periodic_task,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
     scheduler.add_job(db_rollover,          'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
-    scheduler.add_job(thermostat_recovery,  'cron', second=45, minute=1, hour='*', coalesce=True)
+    #scheduler.add_job(thermostat_recovery,  'cron', second=45, minute=1, hour='*', coalesce=True)
 
     scheduler.start()
 
