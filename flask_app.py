@@ -112,7 +112,7 @@ def initial_read_temperatures():
 
 def db_update():
     for room in ROOMS:
-        #if thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0:
+        if thermostat_states[room][STATE_DATA_MISSING_COUNT] == 0:
             thermostat_db.insert_sensor_data(room,
                                              thermostat_states[room][STATE_DTIME],
                                              thermostat_states[room][STATE_TEMPERATURE],
@@ -136,7 +136,7 @@ def read_temperatures():
 
     def fetch_temperature(room, url):
         try:
-            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=33).json()
+            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=12).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
@@ -169,7 +169,6 @@ def read_temperatures():
             thermostat_states[room][STATE_DATA_MISSING_COUNT] += 1
             max_data_missing = max(max_data_missing, thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
-    #max_data_missing = max(max_data_missing, *[thermostat_states[r][STATE_DATA_MISSING_COUNT] for r in ROOMS])
     log.info("Max data missing: " + str(max_data_missing) + " " + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
 
 
