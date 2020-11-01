@@ -233,7 +233,7 @@ def temperature_keeping_task():
     TARGET_HIGH_MARGIN = 0.5
 
     BOILER_STATE_CHANGE_DELAY = datetime.timedelta(minutes=5)
-    MAX_BOILER_ON_TIME = datetime.timedelta(minutes=12)
+    MAX_BOILER_ON_TIME = datetime.timedelta(minutes=15)
 
     new_boiler_states = {room: thermostat_states[room][STATE_BOILER] for room in ROOMS}
 
