@@ -261,7 +261,8 @@ def temperature_keeping_task():
 
             if room == ROOM_LIVING:
                 log.info("Add job for prevent_possible_livingroom_out_of_sync")
-                scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'interval', seconds=80)
+                scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'date', run_date=datetime.datetime.now() + datetime.timedelta(seconds=30))
+                scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'date', run_date=datetime.datetime.now() + datetime.timedelta(seconds=90))
 
         elif not boiler_state and \
              (pipe_out < PIPE_OUT_LOW_LIMIT and
