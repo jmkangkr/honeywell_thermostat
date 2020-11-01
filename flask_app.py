@@ -119,7 +119,7 @@ def db_update():
                                              thermostat_states[room][STATE_HUMIDITY],
                                              thermostat_states[room][STATE_PIPE_IN],
                                              thermostat_states[room][STATE_PIPE_OUT],
-                                             thermostat_states[room][STATE_TEMPERATURE],
+                                             thermostat_states[room][STATE_TARGET],
                                              thermostat_states[room][STATE_BOILER],
                                              thermostat_states[room][STATE_DATA_MISSING_COUNT])
 
@@ -230,7 +230,7 @@ def temperature_keeping_task():
     PIPE_OUT_HIGH_LIMIT = 39.0
     PIPE_OUT_LOW_LIMIT = 34.0
 
-    TARGET_HIGH_MARGIN = 0.5
+    TARGET_HIGH_MARGIN = 0.2
 
     BOILER_STATE_CHANGE_DELAY = datetime.timedelta(minutes=5)
     MAX_BOILER_ON_TIME = datetime.timedelta(minutes=15)
