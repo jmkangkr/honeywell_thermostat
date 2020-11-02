@@ -229,11 +229,11 @@ def apply():
         if name.endswith("_TARGET"):
             new_targets[name.replace("_TARGET", "")] = float(value)
         elif name.endswith("_AUTO_OFF"):
-            new_auto_off[name.replace("_AUTO_OFF", "")] = value
+            new_auto_off[name.replace("_AUTO_OFF", "")] = True if value == 'on' else False
         elif name.endswith("_AUTO_OFF_TIME"):
             new_auto_off_time[name.replace("_AUTO_OFF_TIME", "")] = value
         elif name.endswith("_AUTO_ON"):
-            new_auto_on[name.replace("_AUTO_ON", "")] = value
+            new_auto_on[name.replace("_AUTO_ON", "")] = True if value == 'on' else False
         elif name.endswith("_AUTO_ON_TIME"):
             new_auto_on_time[name.replace("_AUTO_ON_TIME", "")] = value
 
