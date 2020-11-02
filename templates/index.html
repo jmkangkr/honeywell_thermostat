@@ -39,7 +39,7 @@
                 }
             </script>
             <div class="temperature">
-                <label for="ROOM_LIVING_TARGET_SELECTOR">Living Room ({{ROOM_LIVING.STATE_TEMPERATURE|round(1, 'common')}}/{{ROOM_LIVING.STATE_BOILER}}/{{ROOM_LIVING.STATE_PIPE_OUT|round(1, 'common')}})</label>
+                <label for="ROOM_LIVING_TARGET_SELECTOR">Living Room ({{ROOM_LIVING.STATE_TEMPERATURE|round(1, 'common')}}/{{'T' if ROOM_LIVING.STATE_BOILER else 'F'}}/{{ROOM_LIVING.STATE_PIPE_OUT|round(1, 'common')}})</label>
                 <select id="ROOM_LIVING_TARGET_SELECTOR" name="ROOM_LIVING_TARGET">
                     <script>
                         createOptionWithValues("ROOM_LIVING_TARGET", {{ROOM_LIVING.STATE_TARGET}});
@@ -47,13 +47,13 @@
                 </select>
                 <label for="ROOM_LIVING_AUTO_OFF_TIME">Off at: </label>
                 <input id="ROOM_LIVING_AUTO_OFF_TIME" type="time" value={{ROOM_LIVING.STATE_AUTO_OFF_TIME}} name="ROOM_LIVING_AUTO_OFF_TIME">
-                <input type="checkbox" name="ROOM_LIVING_AUTO_OFF">off
+                <input type="checkbox" name="ROOM_LIVING_AUTO_OFF">
                 <label for="ROOM_LIVING_AUTO_ON_TIME">On at: </label>
                 <input id="ROOM_LIVING_AUTO_ON_TIME" type="time" value={{ROOM_LIVING.STATE_AUTO_ON_TIME}} name="ROOM_LIVING_AUTO_ON_TIME">
-                <input type="checkbox" name="ROOM_LIVING_AUTO_OFF">on
+                <input type="checkbox" name="ROOM_LIVING_AUTO_OFF">
             </div>
             <div class="temperature">
-                <label for="ROOM_BED_TARGET_SELECTOR">Bedroom ({{ROOM_BED.STATE_TEMPERATURE|round(1, 'common')}}/{{ROOM_BED.STATE_BOILER}}/{{ROOM_BED.STATE_PIPE_OUT|round(1, 'common')}})</label>
+                <label for="ROOM_BED_TARGET_SELECTOR">Bedroom ({{ROOM_BED.STATE_TEMPERATURE|round(1, 'common')}}/{{'T' if ROOM_BED.STATE_BOILER else 'F'}}/{{ROOM_BED.STATE_PIPE_OUT|round(1, 'common')}})</label>
                 <select id="ROOM_BED_TARGET_SELECTOR" name="ROOM_BED_TARGET">
                     <script>
                         createOptionWithValues("ROOM_BED_TARGET", {{ROOM_BED.STATE_TARGET}});
@@ -61,13 +61,13 @@
                 </select>
                 <label for="ROOM_BED_AUTO_OFF_TIME">Off at: </label>
                 <input id="ROOM_BED_AUTO_OFF_TIME" type="time" value={{ROOM_BED.STATE_AUTO_OFF_TIME}} name="ROOM_BED_AUTO_OFF_TIME">
-                <input type="checkbox" name="ROOM_BED_AUTO_OFF">off
+                <input type="checkbox" name="ROOM_BED_AUTO_OFF">
                 <label for="ROOM_BED_AUTO_ON_TIME">On at: </label>
                 <input id="ROOM_BED_AUTO_ON_TIME" type="time" value={{ROOM_BED.STATE_AUTO_ON_TIME}} name="ROOM_BED_AUTO_ON_TIME">
-                <input type="checkbox" name="ROOM_BED_AUTO_OFF">on
+                <input type="checkbox" name="ROOM_BED_AUTO_OFF">
             </div>
             <div class="temperature">
-                <label for="ROOM_COMPUTER_TARGET_SELECTOR">Lab13485 ({{ROOM_COMPUTER.STATE_TEMPERATURE|round(1, 'common')}}/{{ROOM_COMPUTER.STATE_BOILER}}/{{ROOM_COMPUTER.STATE_PIPE_OUT|round(1, 'common')}})</label>
+                <label for="ROOM_COMPUTER_TARGET_SELECTOR">Lab13485 ({{ROOM_COMPUTER.STATE_TEMPERATURE|round(1, 'common')}}/{{'T' if ROOM_COMPUTER.STATE_BOILER else 'F'}}/{{ROOM_COMPUTER.STATE_PIPE_OUT|round(1, 'common')}})</label>
                 <select id="ROOM_COMPUTER_TARGET_SELECTOR" name="ROOM_COMPUTER_TARGET">
                     <script>
                         createOptionWithValues("ROOM_COMPUTER_TARGET", {{ROOM_COMPUTER.STATE_TARGET}});
@@ -75,13 +75,13 @@
                 </select>
                 <label for="ROOM_COMPUTER_AUTO_OFF_TIME">Off at: </label>
                 <input id="ROOM_COMPUTER_AUTO_OFF_TIME" type="time" value={{ROOM_COMPUTER.STATE_AUTO_OFF_TIME}} name="ROOM_COMPUTER_AUTO_OFF_TIME">
-                <input type="checkbox" name="ROOM_COMPUTER_AUTO_OFF">off
+                <input type="checkbox" name="ROOM_COMPUTER_AUTO_OFF">
                 <label for="ROOM_COMPUTER_AUTO_ON_TIME">On at: </label>
                 <input id="ROOM_COMPUTER_AUTO_ON_TIME" type="time" value={{ROOM_COMPUTER.STATE_AUTO_ON_TIME}} name="ROOM_COMPUTER_AUTO_ON_TIME">
-                <input type="checkbox" name="ROOM_COMPUTER_AUTO_OFF">on
+                <input type="checkbox" name="ROOM_COMPUTER_AUTO_OFF">
             </div>
             <div class="temperature">
-                <label for="ROOM_HANS_TARGET_SELECTOR">Han's Room ({{ROOM_HANS.STATE_TEMPERATURE|round(1, 'common')}}/{{ROOM_HANS.STATE_BOILER}}/{{ROOM_HANS.STATE_PIPE_OUT|round(1, 'common')}})</label>
+                <label for="ROOM_HANS_TARGET_SELECTOR">Han's Room ({{ROOM_HANS.STATE_TEMPERATURE|round(1, 'common')}}/{{'T' if ROOM_HANS.STATE_BOILER else 'F'}}/{{ROOM_HANS.STATE_PIPE_OUT|round(1, 'common')}})</label>
                 <select id="ROOM_HANS_TARGET_SELECTOR" name="ROOM_HANS_TARGET">
                     <script>
                         createOptionWithValues("ROOM_HANS_TARGET", {{ROOM_HANS.STATE_TARGET}});
@@ -89,15 +89,12 @@
                 </select>
                 <label for="ROOM_HANS_AUTO_OFF_TIME">Off at: </label>
                 <input id="ROOM_HANS_AUTO_OFF_TIME" type="time" value={{ROOM_HANS.STATE_AUTO_OFF_TIME}} name="ROOM_HANS_AUTO_OFF_TIME">
-                <input type="checkbox" name="ROOM_HANS_AUTO_OFF">off
+                <input type="checkbox" name="ROOM_HANS_AUTO_OFF">
                 <label for="ROOM_HANS_AUTO_ON_TIME">On at: </label>
                 <input id="ROOM_HANS_AUTO_ON_TIME" type="time" value={{ROOM_HANS.STATE_AUTO_ON_TIME}} name="ROOM_HANS_AUTO_ON_TIME">
-                <input type="checkbox" name="ROOM_HANS_AUTO_OFF">on
+                <input type="checkbox" name="ROOM_HANS_AUTO_OFF">
             </div>
         </div>
-
-        <label for="auto-off-time">All off at: </label>
-        <input id="auto-off-time" type="time" value="08:00" name="ALL_AUTO_OFF_TIME">
 
         <div style="text-align:center; margin-top:40px;">
             <input class="button" type="submit" value="Apply"/>
