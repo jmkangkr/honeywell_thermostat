@@ -221,9 +221,9 @@ def apply():
     global thermostat_states
 
     new_targets = {}
-    new_auto_on = {}
+    new_auto_on = {room: False for room in ROOMS}
     new_auto_on_time = {}
-    new_auto_off = {}
+    new_auto_off = {room: False for room in ROOMS}
     new_auto_off_time = {}
     for name, value in request.form.items():
         if name.endswith("_TARGET"):
