@@ -61,7 +61,7 @@ thermostat_states = {
     ROOM_COMPUTER:  default_room_state.copy(),
     ROOM_HANS:      default_room_state.copy(),
 }
-
+thermostat_all_auto_off = None
 
 temperature_servers = {
     PIPES_BOILER:   "http://192.168.50.32/temperature",
@@ -201,19 +201,23 @@ def send_state_changes(old_onoffs, new_onoffs):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', **thermostat_states)
+    return render_template('index.html', all_auto_off=thermostat_all_auto_off, **thermostat_states)
 
 
 @app.route('/apply', methods=['POST', 'GET'])
 def apply():
     log.info("Apply: {}".format(request.form))
+
+    global thermostat_all_auto_off
+
     new_targets = {}
-    auto_offs = set()
     for name, value in request.form.items():
         if name.endswith("_TARGET"):
             new_targets[name.replace("_TARGET", "")] = float(value)
-        elif name.endswith("_AUTO_OFF"):
-            auto_offs.add(name.replace("_AUTO_OFF", ""))
+        elif name.endswith("_AUTO_OFF_TIME"):
+            thermostat_all_auto_off = value
+            print(str(thermostat_all_auto_off))
+            print(type(thermostat_all_auto_off))
 
     update_targets(new_targets)
 
