@@ -39,6 +39,10 @@ STATE_TARGET = "STATE_TARGET"
 STATE_BOILER = "STATE_BOILER"
 STATE_TIME_BOILER_CHANGE = "STATE_TIME_BOILER_CHANGE"
 STATE_DATA_MISSING_COUNT = "STATE_DATA_MISSING_COUNT"
+STATE_AUTO_ON = "STATE_AUTO_ON"
+STATE_AUTO_ON_TIME = "STATE_AUTO_ON_TIME"
+STATE_AUTO_OFF = "STATE_AUTO_OFF"
+STATE_AUTO_OFF_TIME = "STATE_AUTO_OFF_TIME"
 
 
 # The order has a dependency to index.html
@@ -51,7 +55,11 @@ default_room_state = {
     STATE_TARGET:               THERMOSTAT_OFF_TEMPERATURE,
     STATE_BOILER:               False,
     STATE_TIME_BOILER_CHANGE:   datetime.datetime.now() - datetime.timedelta(hours=1),
-    STATE_DATA_MISSING_COUNT:   999999
+    STATE_DATA_MISSING_COUNT:   999999,
+    STATE_AUTO_ON:              False,
+    STATE_AUTO_ON_TIME:         '20:00',
+    STATE_AUTO_OFF:             False,
+    STATE_AUTO_OFF_TIME:        '08:00'
 }
 
 
@@ -61,7 +69,7 @@ thermostat_states = {
     ROOM_COMPUTER:  default_room_state.copy(),
     ROOM_HANS:      default_room_state.copy(),
 }
-thermostat_all_auto_off = None
+
 
 temperature_servers = {
     PIPES_BOILER:   "http://192.168.50.32/temperature",
@@ -172,12 +180,14 @@ def read_temperatures():
     log.info("Max data missing: " + str(max_data_missing) + " " + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
 
 
+"""
 def update_targets(new_targets):
     global thermostat_states
 
     with lock:
         for room in ROOMS:
             thermostat_states[room][STATE_TARGET] = new_targets[room]
+"""
 
 
 def update_boilers(new_onoffs):
@@ -208,18 +218,55 @@ def index():
 def apply():
     log.info("Apply: {}".format(request.form))
 
-    global thermostat_all_auto_off
+    global thermostat_states
 
     new_targets = {}
+    new_auto_on = {}
+    new_auto_on_time = {}
+    new_auto_off = {}
+    new_auto_off_time = {}
     for name, value in request.form.items():
         if name.endswith("_TARGET"):
             new_targets[name.replace("_TARGET", "")] = float(value)
+        elif name.endswith("_AUTO_OFF"):
+            new_auto_off[name.replace("_AUTO_OFF", "")] = value
         elif name.endswith("_AUTO_OFF_TIME"):
-            thermostat_all_auto_off = value
-            print(str(thermostat_all_auto_off))
-            print(type(thermostat_all_auto_off))
+            new_auto_off_time[name.replace("_AUTO_OFF_TIME", "")] = value
+        elif name.endswith("_AUTO_ON"):
+            new_auto_on[name.replace("_AUTO_ON", "")] = value
+        elif name.endswith("_AUTO_ON_TIME"):
+            new_auto_on_time[name.replace("_AUTO_ON_TIME", "")] = value
 
-    update_targets(new_targets)
+    with lock:
+        for room in ROOMS:
+            thermostat_states[room][STATE_TARGET] = new_targets[room]
+
+            # Remove previous auto OFF task
+            if thermostat_states[room][STATE_AUTO_OFF] and (not new_auto_off[room] or (thermostat_states[room][STATE_AUTO_OFF_TIME] != new_auto_off_time[room])):
+                log.info("{}: remove_job for auto_off_task of".format(room))
+                scheduler.remove_job('id_auto_off_task')
+
+            # Add new auto OFF task
+            if new_auto_off[room] and (not thermostat_states[room][STATE_AUTO_OFF] or (thermostat_states[room][STATE_AUTO_OFF_TIME] != new_auto_off_time[room])):
+                log.info("{}: add_job for auto_off_task at {}".format(room, new_auto_off_time[room]))
+                hour, minute = map(int, new_auto_off_time[room].split(':'))
+                scheduler.add_job(auto_off_task, 'cron', args=[room], second=30, minute=minute, hour=hour, misfire_grace_time=120, id='id_auto_off_task')
+
+            # Remove previous auto ON task
+            if thermostat_states[room][STATE_AUTO_ON] and (not new_auto_on[room] or (thermostat_states[room][STATE_AUTO_ON_TIME] != new_auto_on_time[room])):
+                log.info("{}: remove_job for auto_on_task of".format(room))
+                scheduler.remove_job('id_auto_on_task')
+
+            # Add new auto ON task
+            if new_auto_on[room] and (not thermostat_states[room][STATE_AUTO_ON] or (thermostat_states[room][STATE_AUTO_ON_TIME] != new_auto_on_time[room])):
+                log.info("{}: add_job for auto_on_task at {}".format(room, new_auto_on_time[room]))
+                hour, minute = map(int, new_auto_on_time[room].split(':'))
+                scheduler.add_job(auto_on_task, 'cron', args=[room], second=30, minute=minute, hour=hour,misfire_grace_time=120, id='id_auto_on_task')
+
+            thermostat_states[room][STATE_AUTO_OFF] = new_auto_off[room]
+            thermostat_states[room][STATE_AUTO_OFF_TIME] = new_auto_off_time[room]
+            thermostat_states[room][STATE_AUTO_ON] = new_auto_on[room]
+            thermostat_states[room][STATE_AUTO_ON_TIME] = new_auto_on_time[room]
 
     temperature_keeping_task()
 
@@ -366,6 +413,16 @@ def thermostat_recovery():
 """
 
 
+def auto_off_task(room):
+    log.info("{} Run auto_off_task. The next temperature_keeping_task will handle".format(room))
+    thermostat_states[room][STATE_TARGET] = 5.0
+
+
+def auto_on_task(room):
+    log.info("{} Run auto_on_task. The next temperature_keeping_task will handle".format(room))
+    thermostat_states[room][STATE_TARGET] = 24.0
+
+
 def prevent_possible_livingroom_out_of_sync():
     log.info("prevent_possible_livingroom_out_of_sync runs")
     with lock:
@@ -400,7 +457,6 @@ if __name__ == '__main__':
 
     scheduler.add_job(periodic_task,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
     scheduler.add_job(db_rollover,          'cron', second=45, minute=59, hour=23, misfire_grace_time=120)
-    #scheduler.add_job(thermostat_recovery,  'cron', second=45, minute=1, hour='*', coalesce=True)
 
     scheduler.start()
 
