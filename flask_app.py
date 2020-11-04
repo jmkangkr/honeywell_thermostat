@@ -278,8 +278,8 @@ def temperature_keeping_task():
 
     global thermostat_states
 
-    PIPE_OUT_HIGH_LIMIT = 39.0
-    PIPE_OUT_LOW_LIMIT = 34.0
+    PIPE_OUT_HIGH_LIMIT = 35.0
+    PIPE_OUT_LOW_LIMIT = 31.0
 
     TARGET_HIGH_MARGIN = 0.2
 
