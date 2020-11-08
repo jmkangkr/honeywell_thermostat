@@ -180,16 +180,6 @@ def read_temperatures():
     log.info("Max data missing: " + str(max_data_missing) + " " + pformat([thermostat_states[room][STATE_DATA_MISSING_COUNT] for room in ROOMS]))
 
 
-"""
-def update_targets(new_targets):
-    global thermostat_states
-
-    with lock:
-        for room in ROOMS:
-            thermostat_states[room][STATE_TARGET] = new_targets[room]
-"""
-
-
 def update_boilers(new_onoffs):
     global thermostat_states
 
@@ -268,7 +258,7 @@ def apply():
             thermostat_states[room][STATE_AUTO_ON] = new_auto_on[room]
             thermostat_states[room][STATE_AUTO_ON_TIME] = new_auto_on_time[room]
 
-    temperature_keeping_task()
+    # temperature_keeping_task()
 
     return redirect(url_for('index'))
 
