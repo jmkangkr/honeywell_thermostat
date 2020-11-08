@@ -451,7 +451,7 @@ if __name__ == '__main__':
     scheduler.start()
 
     try:
-        app.run(use_reloader=False, debug=True, host='0.0.0.0')
+        app.run(use_reloader=False, debug=True, host='0.0.0.0', port=80)
     except FlaskStopException:
         log.info("End of Flask app")
 
