@@ -144,7 +144,7 @@ def read_temperatures():
 
     def fetch_temperature(room, url):
         try:
-            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=12).json()
+            resp = requests.get(url, headers={'Connection': 'keep-alive'}, timeout=8).json()
         except Exception as exc:
             log.critical(f"Can't get data from server {room}:\n {exc}")
             resp = None
