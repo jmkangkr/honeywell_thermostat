@@ -446,7 +446,7 @@ if __name__ == '__main__':
     scheduler.add_job(db_close, next_run_time=None, id='db_close', misfire_grace_time=None)
 
     scheduler.add_job(periodic_task,        'cron', second=0, minute='*', misfire_grace_time=15, coalesce=True)
-    scheduler.add_job(db_rollover,          'cron', second=45, minute=59, hour=15, misfire_grace_time=120)
+    scheduler.add_job(db_rollover,          'cron', second=45, minute=59, hour=8, misfire_grace_time=120)
 
     scheduler.start()
 
