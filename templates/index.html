@@ -50,6 +50,11 @@
 
                 <label for="ROOM_LIVING_AUTO_ON_TIME">ON </label>
                 <input id="ROOM_LIVING_AUTO_ON_TIME" type="time" value={{ROOM_LIVING.STATE_AUTO_ON_TIME}} name="ROOM_LIVING_AUTO_ON_TIME">
+                <select id="ROOM_LIVING_AUTO_ON_TARGET_SELECTOR" name="ROOM_LIVING_AUTO_ON_TARGET">
+                    <script>
+                        createOptionWithValues("ROOM_LIVING_AUTO_ON_TARGET", {{ROOM_LIVING.STATE_AUTO_ON_TARGET}});
+                    </script>
+                </select>
                 <input type="checkbox" name="ROOM_LIVING_AUTO_ON" {% if ROOM_LIVING.STATE_AUTO_ON %}checked{% endif %}>
 
                 <label for="ROOM_LIVING_AUTO_OFF_TIME">OFF </label>
@@ -69,6 +74,11 @@
 
                 <label for="ROOM_BED_AUTO_ON_TIME">ON </label>
                 <input id="ROOM_BED_AUTO_ON_TIME" type="time" value={{ROOM_BED.STATE_AUTO_ON_TIME}} name="ROOM_BED_AUTO_ON_TIME">
+                <select id="ROOM_BED_AUTO_ON_TARGET_SELECTOR" name="ROOM_BED_AUTO_ON_TARGET">
+                    <script>
+                        createOptionWithValues("ROOM_BED_AUTO_ON_TARGET", {{ROOM_BED.STATE_AUTO_ON_TARGET}});
+                    </script>
+                </select>
                 <input type="checkbox" name="ROOM_BED_AUTO_ON" {% if ROOM_BED.STATE_AUTO_ON %}checked{% endif %}>
 
                 <label for="ROOM_BED_AUTO_OFF_TIME">OFF </label>
@@ -88,6 +98,11 @@
 
                 <label for="ROOM_COMPUTER_AUTO_ON_TIME">ON </label>
                 <input id="ROOM_COMPUTER_AUTO_ON_TIME" type="time" value={{ROOM_COMPUTER.STATE_AUTO_ON_TIME}} name="ROOM_COMPUTER_AUTO_ON_TIME">
+                <select id="ROOM_COMPUTER_AUTO_ON_TARGET_SELECTOR" name="ROOM_COMPUTER_AUTO_ON_TARGET">
+                    <script>
+                        createOptionWithValues("ROOM_COMPUTER_AUTO_ON_TARGET", {{ROOM_COMPUTER.STATE_AUTO_ON_TARGET}});
+                    </script>
+                </select>
                 <input type="checkbox" name="ROOM_COMPUTER_AUTO_ON" {% if ROOM_COMPUTER.STATE_AUTO_ON %}checked{% endif %}>
 
                 <label for="ROOM_COMPUTER_AUTO_OFF_TIME">OFF </label>
@@ -107,6 +122,11 @@
 
                 <label for="ROOM_HANS_AUTO_ON_TIME">ON </label>
                 <input id="ROOM_HANS_AUTO_ON_TIME" type="time" value={{ROOM_HANS.STATE_AUTO_ON_TIME}} name="ROOM_HANS_AUTO_ON_TIME">
+                <select id="ROOM_HANS_AUTO_ON_TARGET_SELECTOR" name="ROOM_HANS_AUTO_ON_TARGET">
+                    <script>
+                        createOptionWithValues("ROOM_HANS_AUTO_ON_TARGET", {{ROOM_HANS.STATE_AUTO_ON_TARGET}});
+                    </script>
+                </select>
                 <input type="checkbox" name="ROOM_HANS_AUTO_ON" {% if ROOM_HANS.STATE_AUTO_ON %}checked{% endif %}>
 
                 <label for="ROOM_HANS_AUTO_OFF_TIME">OFF </label>

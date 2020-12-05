@@ -41,6 +41,7 @@ STATE_TIME_BOILER_CHANGE = "STATE_TIME_BOILER_CHANGE"
 STATE_DATA_MISSING_COUNT = "STATE_DATA_MISSING_COUNT"
 STATE_AUTO_ON = "STATE_AUTO_ON"
 STATE_AUTO_ON_TIME = "STATE_AUTO_ON_TIME"
+STATE_AUTO_ON_TARGET = "STATE_AUTO_ON_TARGET"
 STATE_AUTO_OFF = "STATE_AUTO_OFF"
 STATE_AUTO_OFF_TIME = "STATE_AUTO_OFF_TIME"
 
@@ -58,6 +59,7 @@ default_room_state = {
     STATE_DATA_MISSING_COUNT:   999999,
     STATE_AUTO_ON:              False,
     STATE_AUTO_ON_TIME:         '20:00',
+    STATE_AUTO_ON_TARGET:       24.0,
     STATE_AUTO_OFF:             False,
     STATE_AUTO_OFF_TIME:        '08:00'
 }
@@ -211,12 +213,15 @@ def apply():
     global thermostat_states
 
     new_targets = {}
+    new_auto_on_target = {}
     new_auto_on = {room: False for room in ROOMS}
     new_auto_on_time = {}
     new_auto_off = {room: False for room in ROOMS}
     new_auto_off_time = {}
     for name, value in request.form.items():
-        if name.endswith("_TARGET"):
+        if name.endswith("_AUTO_ON_TARGET"):
+            new_auto_on_target[name.replace("_AUTO_ON_TARGET", "")] = float(value)
+        elif name.endswith("_TARGET"):
             new_targets[name.replace("_TARGET", "")] = float(value)
         elif name.endswith("_AUTO_OFF"):
             new_auto_off[name.replace("_AUTO_OFF", "")] = True if value == 'on' else False
@@ -230,6 +235,7 @@ def apply():
     with lock:
         for room in ROOMS:
             thermostat_states[room][STATE_TARGET] = new_targets[room]
+            thermostat_states[room][STATE_AUTO_ON_TARGET] = new_auto_on_target[room]
 
             # Remove previous auto OFF task
             if thermostat_states[room][STATE_AUTO_OFF] and (not new_auto_off[room] or (thermostat_states[room][STATE_AUTO_OFF_TIME] != new_auto_off_time[room])):
@@ -410,7 +416,7 @@ def auto_off_task(room):
 
 def auto_on_task(room):
     log.info("{} Run auto_on_task. The next temperature_keeping_task will handle".format(room))
-    thermostat_states[room][STATE_TARGET] = 24.0
+    thermostat_states[room][STATE_TARGET] = thermostat_states[room][STATE_AUTO_ON_TARGET]
 
 
 def prevent_possible_livingroom_out_of_sync():
