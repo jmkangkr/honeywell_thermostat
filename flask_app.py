@@ -46,6 +46,23 @@ STATE_AUTO_OFF = "STATE_AUTO_OFF"
 STATE_AUTO_OFF_TIME = "STATE_AUTO_OFF_TIME"
 
 
+CONFIGURATIONS = "CONFIGURATIONS"
+
+
+CONFIG_BOILER_STATE_CHANGE_DELAY = "CONFIG_BOILER_STATE_CHANGE_DELAY"
+CONFIG_MAX_BOILER_ON_TIME = "CONFIG_MAX_BOILER_ON_TIME"
+CONFIG_PIPE_OUT_HIGH_LIMIT = "CONFIG_PIPE_OUT_HIGH_LIMIT"
+CONFIG_PIPE_OUT_LOW_LIMIT = "CONFIG_PIPE_OUT_LOW_LIMIT"
+
+
+default_configurations = {
+    CONFIG_BOILER_STATE_CHANGE_DELAY:   datetime.timedelta(minutes=5),
+    CONFIG_MAX_BOILER_ON_TIME:          datetime.timedelta(minutes=15),
+    CONFIG_PIPE_OUT_HIGH_LIMIT:         35.0,
+    CONFIG_PIPE_OUT_LOW_LIMIT:          31.0
+}
+
+
 # The order has a dependency to index.html
 default_room_state = {
     STATE_DTIME:                datetime.datetime(1970, 1, 1, 9, 0),
@@ -66,6 +83,7 @@ default_room_state = {
 
 
 thermostat_states = {
+    CONFIGURATIONS: default_configurations.copy(),
     ROOM_LIVING:    default_room_state.copy(),
     ROOM_BED:       default_room_state.copy(),
     ROOM_COMPUTER:  default_room_state.copy(),
@@ -274,13 +292,13 @@ def temperature_keeping_task():
 
     global thermostat_states
 
-    PIPE_OUT_HIGH_LIMIT = 35.0
-    PIPE_OUT_LOW_LIMIT = 31.0
+    PIPE_OUT_HIGH_LIMIT = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT]
+    PIPE_OUT_LOW_LIMIT = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_LOW_LIMIT]
 
     TARGET_HIGH_MARGIN = 0.2
 
-    BOILER_STATE_CHANGE_DELAY = datetime.timedelta(minutes=5)
-    MAX_BOILER_ON_TIME = datetime.timedelta(minutes=15)
+    BOILER_STATE_CHANGE_DELAY = thermostat_states[CONFIGURATIONS][CONFIG_BOILER_STATE_CHANGE_DELAY]
+    MAX_BOILER_ON_TIME = thermostat_states[CONFIGURATIONS][CONFIG_MAX_BOILER_ON_TIME]
 
     new_boiler_states = {room: thermostat_states[room][STATE_BOILER] for room in ROOMS}
 
