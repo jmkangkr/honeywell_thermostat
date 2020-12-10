@@ -253,9 +253,9 @@ def apply():
         elif name.endswith("_AUTO_ON_TIME"):
             new_auto_on_time[name.replace("_AUTO_ON_TIME", "")] = value
         elif name.endswith("CONFIG_PIPE_OUT_HIGH_LIMIT"):
-            new_pipe_out_high_limit = value
+            new_pipe_out_high_limit = float(value)
         elif name.endswith("CONFIG_PIPE_OUT_LOW_LIMIT"):
-            new_pipe_out_low_limit = value
+            new_pipe_out_low_limit = float(value)
 
     with lock:
         thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT] = new_pipe_out_high_limit
