@@ -230,6 +230,9 @@ def apply():
 
     global thermostat_states
 
+    new_pipe_out_high_limit = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT]
+    new_pipe_out_low_limit = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_LOW_LIMIT]
+
     new_targets = {}
     new_auto_on_target = {}
     new_auto_on = {room: False for room in ROOMS}
@@ -249,8 +252,15 @@ def apply():
             new_auto_on[name.replace("_AUTO_ON", "")] = True if value == 'on' else False
         elif name.endswith("_AUTO_ON_TIME"):
             new_auto_on_time[name.replace("_AUTO_ON_TIME", "")] = value
+        elif name.endswith("CONFIG_PIPE_OUT_HIGH_LIMIT"):
+            new_pipe_out_high_limit = value
+        elif name.endswith("CONFIG_PIPE_OUT_LOW_LIMIT"):
+            new_pipe_out_low_limit = value
 
     with lock:
+        thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT] = new_pipe_out_high_limit
+        thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_LOW_LIMIT] = new_pipe_out_low_limit
+
         for room in ROOMS:
             thermostat_states[room][STATE_TARGET] = new_targets[room]
             thermostat_states[room][STATE_AUTO_ON_TARGET] = new_auto_on_target[room]
@@ -292,13 +302,13 @@ def temperature_keeping_task():
 
     global thermostat_states
 
-    PIPE_OUT_HIGH_LIMIT = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT]
-    PIPE_OUT_LOW_LIMIT = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_LOW_LIMIT]
+    pipe_out_high_limit = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_HIGH_LIMIT]
+    pipe_out_low_limit = thermostat_states[CONFIGURATIONS][CONFIG_PIPE_OUT_LOW_LIMIT]
 
     TARGET_HIGH_MARGIN = 0.2
 
-    BOILER_STATE_CHANGE_DELAY = thermostat_states[CONFIGURATIONS][CONFIG_BOILER_STATE_CHANGE_DELAY]
-    MAX_BOILER_ON_TIME = thermostat_states[CONFIGURATIONS][CONFIG_MAX_BOILER_ON_TIME]
+    boiler_state_change_delay = thermostat_states[CONFIGURATIONS][CONFIG_BOILER_STATE_CHANGE_DELAY]
+    max_boiler_on_time = thermostat_states[CONFIGURATIONS][CONFIG_MAX_BOILER_ON_TIME]
 
     new_boiler_states = {room: thermostat_states[room][STATE_BOILER] for room in ROOMS}
 
@@ -317,9 +327,9 @@ def temperature_keeping_task():
                  .format(room, data_missing, current, target_base, pipe_in, pipe_out, str(boiler_state)[:1], *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
 
         if boiler_state and \
-           (pipe_out >= PIPE_OUT_HIGH_LIMIT or
+           (pipe_out >= pipe_out_high_limit or
            current >= target_high or
-           time_passed_after_boiler_state_change >= MAX_BOILER_ON_TIME):
+           time_passed_after_boiler_state_change >= max_boiler_on_time):
             # Turn off boiler
             log.info("Should be OFF: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({:.0f}min, {:.0f}sec))".format(current, target_base, pipe_out, *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
             new_boiler_states[room] = False
@@ -330,9 +340,9 @@ def temperature_keeping_task():
                 scheduler.add_job(prevent_possible_livingroom_out_of_sync, 'date', run_date=datetime.datetime.now() + datetime.timedelta(seconds=90))
 
         elif not boiler_state and \
-             (pipe_out < PIPE_OUT_LOW_LIMIT and
+             (pipe_out < pipe_out_low_limit and
              current < target_base and
-             time_passed_after_boiler_state_change >= BOILER_STATE_CHANGE_DELAY and
+             time_passed_after_boiler_state_change >= boiler_state_change_delay and
              data_missing == 0):
             # Turn on boiler
             log.info("Should be ON: current({:.2f}), target({:.2f}), out({:.2f}, tdelta({:.0f}min, {:.0f}sec))".format(current, target_base, pipe_out, *divmod(time_passed_after_boiler_state_change.total_seconds(), 60)))
