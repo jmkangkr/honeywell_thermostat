@@ -76,7 +76,7 @@ default_room_state = {
     STATE_DATA_MISSING_COUNT:   999999,
     STATE_AUTO_ON:              False,
     STATE_AUTO_ON_TIME:         '20:00',
-    STATE_AUTO_ON_TARGET:       24.0,
+    STATE_AUTO_ON_TARGET:       24.5,
     STATE_AUTO_OFF:             False,
     STATE_AUTO_OFF_TIME:        '08:00'
 }
