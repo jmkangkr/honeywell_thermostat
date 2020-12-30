@@ -240,21 +240,22 @@ def apply():
     new_auto_off = {room: False for room in ROOMS}
     new_auto_off_time = {}
     for name, value in request.form.items():
-        if name.endswith("_AUTO_ON_TARGET"):
-            new_auto_on_target[name.replace("_AUTO_ON_TARGET", "")] = float(value)
-        elif name.endswith("_TARGET"):
-            new_targets[name.replace("_TARGET", "")] = float(value)
-        elif name.endswith("_AUTO_OFF"):
-            new_auto_off[name.replace("_AUTO_OFF", "")] = True if value == 'on' else False
-        elif name.endswith("_AUTO_OFF_TIME"):
-            new_auto_off_time[name.replace("_AUTO_OFF_TIME", "")] = value
-        elif name.endswith("_AUTO_ON"):
-            new_auto_on[name.replace("_AUTO_ON", "")] = True if value == 'on' else False
-        elif name.endswith("_AUTO_ON_TIME"):
-            new_auto_on_time[name.replace("_AUTO_ON_TIME", "")] = value
-        elif name.endswith("CONFIG_PIPE_OUT_HIGH_LIMIT"):
+        room_name, control_name = name.split("-")
+        if control_name == "TARGET":
+            new_targets[room_name] = float(value)
+        elif control_name == "AUTO_ON_TARGET":
+            new_auto_on_target[room_name] = float(value)
+        elif control_name == "AUTO_OFF":
+            new_auto_off[room_name] = True if value == 'on' else False
+        elif control_name == "AUTO_OFF_TIME":
+            new_auto_off_time[room_name] = value
+        elif control_name == "AUTO_ON":
+            new_auto_on[room_name] = True if value == 'on' else False
+        elif control_name == "AUTO_ON_TIME":
+            new_auto_on_time[room_name] = value
+        elif control_name == "CONFIG_PIPE_OUT_HIGH_LIMIT":
             new_pipe_out_high_limit = float(value)
-        elif name.endswith("CONFIG_PIPE_OUT_LOW_LIMIT"):
+        elif control_name == "CONFIG_PIPE_OUT_LOW_LIMIT":
             new_pipe_out_low_limit = float(value)
 
     with lock:
