@@ -135,13 +135,29 @@
 
             </div>
 
-            <hr>
+            <div id="control_panel" style="display: none">
+                <hr>
+                <label for="CONFIG_PIPE_OUT_HIGH_LIMIT">PIPE_OUT_HIGH_LIMIT</label>
+                <input id="CONFIG_PIPE_OUT_HIGH_LIMIT" type="text" value={{CONFIGURATIONS.CONFIG_PIPE_OUT_HIGH_LIMIT}} name="CONFIG_PIPE_OUT_HIGH_LIMIT">
 
-            <label for="CONFIG_PIPE_OUT_HIGH_LIMIT">PIPE_OUT_HIGH_LIMIT</label>
-            <input id="CONFIG_PIPE_OUT_HIGH_LIMIT" type="text" value={{CONFIGURATIONS.CONFIG_PIPE_OUT_HIGH_LIMIT}} name="CONFIG_PIPE_OUT_HIGH_LIMIT">
+                <label for="CONFIG_PIPE_OUT_LOW_LIMIT">PIPE_OUT_LOW_LIMIT</label>
+                <input id="CONFIG_PIPE_OUT_LOW_LIMIT" type="text" value={{CONFIGURATIONS.CONFIG_PIPE_OUT_LOW_LIMIT}} name="CONFIG_PIPE_OUT_LOW_LIMIT">
 
-            <label for="CONFIG_PIPE_OUT_LOW_LIMIT">PIPE_OUT_LOW_LIMIT</label>
-            <input id="CONFIG_PIPE_OUT_LOW_LIMIT" type="text" value={{CONFIGURATIONS.CONFIG_PIPE_OUT_LOW_LIMIT}} name="CONFIG_PIPE_OUT_LOW_LIMIT">
+                <hr>
+                <p>more to come...</p>
+            </div>
+
+            <input type="button" id="control_panel_button" onclick="show_hide_control_panel()" value="Control Panel" />
+            <script>
+                function show_hide_control_panel() {
+                  var x = document.getElementById("control_panel");
+                  if (x.style.display === "none") {
+                    x.style.display = "block";
+                  } else {
+                    x.style.display = "none";
+                  }
+                }
+            </script>
 
         </div>
 
