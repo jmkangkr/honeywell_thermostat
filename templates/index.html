@@ -135,6 +135,8 @@
 
             </div>
 
+            <input type="button" id="control_panel_button" onclick="show_hide_control_panel()" value="Control Panel" style="float: right"/>
+
             <div id="control_panel" style="display: none">
                 <hr>
                 <label for="CONFIG_PIPE_OUT_HIGH_LIMIT">PIPE_OUT_HIGH_LIMIT</label>
@@ -147,7 +149,6 @@
                 <p>more to come...</p>
             </div>
 
-            <input type="button" id="control_panel_button" onclick="show_hide_control_panel()" value="Control Panel" />
             <script>
                 function show_hide_control_panel() {
                   var x = document.getElementById("control_panel");
