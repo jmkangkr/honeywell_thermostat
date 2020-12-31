@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from honeywell_dt200 import gpio_init, change_states, rotate_rotary_encoder
 import threading
 import sys
@@ -222,6 +222,11 @@ def send_state_changes(old_onoffs, new_onoffs):
 @app.route('/index')
 def index():
     return render_template('index.html', **thermostat_states)
+
+
+@app.route('/check')
+def index():
+    return jsonify(tick=time.time())
 
 
 @app.route('/apply', methods=['POST', 'GET'])
