@@ -225,7 +225,7 @@ def index():
 
 
 @app.route('/check')
-def index():
+def check():
     return jsonify(tick=time.time())
 
 
